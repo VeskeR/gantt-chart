@@ -1,7 +1,7 @@
 'use strict';
 
 var $ = require('./helper');
-var ChartGenerator = require('./chart/generator');
+var ChartGenerator = require('./chart/chart-generator');
 var chartTemplate = require('./constants').chartJsonExample;
 
 var chartTarget = $.first('.wrapper__content--chart-target');

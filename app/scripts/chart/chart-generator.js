@@ -4,14 +4,18 @@ var $ = require('../helper');
 var BlockTooltip = require('./block-tooltip');
 var generateChartHtml = require('./generate-chart-html');
 var configureChart = require('./configure-chart');
-var colorizeBlocks = require('./colorize-blocks');
+var blockColors = require('../constants').blockColors;
 
 var ChartGenerator = function (chartTarget, chartJson) {
   this._chartTarget = chartTarget;
   this._chartJson = chartJson;
+
   this._chartTable = null;
   this._chartTimeline = null;
+
   this._blockTooltips = [];
+
+  this._blockColorIndex = Math.random() * blockColors.length | 0;
 }
 
 ChartGenerator.prototype = {
@@ -22,15 +26,17 @@ ChartGenerator.prototype = {
     this._chartJson = chartJson || this._chartJson;
 
     this._createChartElement();
+
     this._appendChartTableToTarget();
     this._appendChartTimelineToTarget();
+
     this._configureChart();
+
     this._colorizeBlocks();
+
     this._createTooltips();
 
-    window.addEventListener('resize', function () {
-      self._configureChart();
-    });
+    this._bindEvents();
   },
   _createChartElement: function () {
     var chartInfo = generateChartHtml(this._chartJson);
@@ -47,11 +53,30 @@ ChartGenerator.prototype = {
     configureChart(this._chartTable, this._chartJson);
   },
   _colorizeBlocks: function () {
-    colorizeBlocks(this._chartTable);
+    var self = this;
+    var blocks = this._chartTable.querySelectorAll('.chart__block');
+    Array.prototype.forEach.call(blocks, function (block) {
+      block.style.backgroundColor = self._getNextBlockColor();
+    });
   },
   _createTooltips: function () {
     this._generateTooltipsArray();
     this._initializeTooltips();
+  },
+  _bindEvents: function () {
+    var self = this;
+    window.addEventListener('resize', function () {
+      self._configureChart();
+    });
+  },
+  _getNextBlockColor: function () {
+    this._blockColorIndex = ++this._blockColorIndex < blockColors.length ?
+                            this._blockColorIndex :
+                            0;
+    return blockColors[this._blockColorIndex];
+  },
+  _getRandomBlockColor: function () {
+    return blockColors[Math.random() * blockColors.length | 0];
   },
   _generateTooltipsArray: function () {
     for (var i = 0; i < this._chartJson.rows.length; i++) {
