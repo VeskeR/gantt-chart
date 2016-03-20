@@ -1,22 +1,33 @@
 &--chart-target {
-  margin: 0 2rem;
+  width: 90%;
 
   .chart {
     width: 100%;
     height: 100%;
-    box-shadow: $material-1;
+    box-shadow: $material-2;
     border: 0px;
 
     &__row, &__cell {
       border: 0px;
+      padding: 1rem;
     }
 
     &__row {
-      border-bottom: 1px solid $light-grey;
+      border-bottom: 1px solid $grey-2;
+
+      &:nth-child(even) {
+        background-color: $grey-1;
+      }
     }
 
     &__cell {
-      color: $dark-grey;
+      color: $grey-5;
+      font-size: 1.2rem;
+      vertical-align: middle;
+
+      &:first-of-type {
+        width: 20%;
+      }
     }
   }
 }
