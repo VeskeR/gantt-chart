@@ -1,6 +1,6 @@
 'use strict';
 
-var $ = require('./query-selector');
+var $ = require('../helper');
 var BlockTooltip = require('./block-tooltip');
 var generateChartHtml = require('./generate-chart-html');
 var configureChart = require('./configure-chart');

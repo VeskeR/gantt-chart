@@ -1,6 +1,6 @@
 'use strict';
 
-var $ = require('./query-selector');
+var $ = require('../helper');
 
 var BlockTooltip = function (blockElement, blockInfo) {
   this._blockElement = blockElement;

@@ -1,7 +1,7 @@
 'use strict';
 
-var $ = require('./query-selector');
-var blockColors = require('./block-colors');
+var $ = require('../helper');
+var blockColors = require('../constants').blockColors;
 var startColorIndex = Math.random() * blockColors.length | 0;
 
 var colorizeBlocks = function (chartElement) {

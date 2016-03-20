@@ -1,6 +1,6 @@
 'use strict';
 
-var $ = require('./query-selector');
+var $ = require('../helper');
 
 var configureChart = function (chartElement, chartJson) {
   // var blocksMapping = createBlocksMapping(chartElement, chartJson);
