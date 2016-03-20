@@ -31,7 +31,9 @@ ChartGenerator.prototype = {
     });
   },
   _createChartElement: function () {
-    this._chartElement = generateChartHtml(this._chartJson);
+    var chartInfo = generateChartHtml(this._chartJson);
+    this._chartElement = chartInfo[0];
+    this._chartTimeline = chartInfo[1];
   },
   _appendChartToTarget: function () {
     this._chartTarget.appendChild(this._chartElement);
