@@ -1,0 +1,31 @@
+{
+  "name": "browserify-webapp-template",
+  "version": "0.0.0",
+  "description": "Template for generating basic web application layout with configured grunt and browserify",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VeskeR/browserify-webapp-template.git"
+  },
+  "author": "Andrey Bulat",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VeskeR/browserify-webapp-template/issues"
+  },
+  "homepage": "https://github.com/VeskeR/browserify-webapp-template#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "autoprefixer": "^6.3.3",
+    "bower": "^1.7.7",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^5.0.0",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-connect": "^1.0.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-postcss": "^0.8.0",
+    "grunt-sass": "^1.1.0",
+    "grunt-wiredep": "^2.0.0",
+    "load-grunt-tasks": "^3.4.1"
+  }
+}
