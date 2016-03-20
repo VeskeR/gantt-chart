@@ -9,7 +9,8 @@ var colorizeBlocks = require('./colorize-blocks');
 var ChartGenerator = function (chartTarget, chartJson) {
   this._chartTarget = chartTarget;
   this._chartJson = chartJson;
-  this._chartElement = null;
+  this._chartTable = null;
+  this._chartTimeline = null;
   this._blockTooltips = [];
 }
 
@@ -21,7 +22,8 @@ ChartGenerator.prototype = {
     this._chartJson = chartJson || this._chartJson;
 
     this._createChartElement();
-    this._appendChartToTarget();
+    this._appendChartTableToTarget();
+    this._appendChartTimelineToTarget();
     this._configureChart();
     this._colorizeBlocks();
     this._createTooltips();
@@ -32,17 +34,20 @@ ChartGenerator.prototype = {
   },
   _createChartElement: function () {
     var chartInfo = generateChartHtml(this._chartJson);
-    this._chartElement = chartInfo[0];
+    this._chartTable = chartInfo[0];
     this._chartTimeline = chartInfo[1];
   },
-  _appendChartToTarget: function () {
-    this._chartTarget.appendChild(this._chartElement);
+  _appendChartTableToTarget: function () {
+    this._chartTarget.appendChild(this._chartTable);
+  },
+  _appendChartTimelineToTarget: function () {
+    this._chartTarget.appendChild(this._chartTimeline);
   },
   _configureChart: function () {
-    configureChart(this._chartElement, this._chartJson);
+    configureChart(this._chartTable, this._chartJson);
   },
   _colorizeBlocks: function () {
-    colorizeBlocks(this._chartElement);
+    colorizeBlocks(this._chartTable);
   },
   _createTooltips: function () {
     this._generateTooltipsArray();
@@ -51,7 +56,7 @@ ChartGenerator.prototype = {
   _generateTooltipsArray: function () {
     for (var i = 0; i < this._chartJson.rows.length; i++) {
       var row = this._chartJson.rows[i];
-      var $blocksContainer = this._chartElement.querySelectorAll('.chart__cell--blocks-container')[i];
+      var $blocksContainer = this._chartTable.querySelectorAll('.chart__cell--blocks-container')[i];
       for (var j = 0; j < row.blocks.length; j++) {
         var block = row.blocks[j];
         var $block = $blocksContainer.querySelectorAll('.chart__block')[j];
