@@ -1,0 +1,45 @@
+@import 'reset';
+@import 'variables';
+@import 'common';
+
+body {
+  background-color: $light-grey;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    width: 90%;
+    margin: 1rem 5%;
+    padding: 1rem 0;
+    background-color: $white;
+    box-shadow: $material-1;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 80%;
+    margin: 2rem 10%;
+    padding: 2rem 0;
+    background-color: $white;
+    box-shadow: $material-1;
+
+    @import 'chart';
+  }
+
+  &__footer {
+
+  }
+}
