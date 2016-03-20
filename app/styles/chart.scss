@@ -62,6 +62,7 @@
   }
 
   .chart-timeline {
-    
+    height: $chart-timeline-height;
+    margin-left: calc(20% + 2rem);
   }
 }
