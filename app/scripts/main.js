@@ -1,6 +1,6 @@
 var $ = require('./query-selector');
-var chartTempate = require('./chart-template');
 var ChartGenerator = require('./chart-generator');
+var chartTempate = require('./chart-template');
 
 var chartTarget = $.first('.wrapper__content--chart-target');
 

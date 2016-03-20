@@ -1,31 +1,30 @@
 var $ = require('./query-selector');
 var generateChartHtml = require('./generate-chart-html');
+var configureChart = require('./configure-chart');
 
 var ChartGenerator = function (chartTarget, chartJson) {
   this._chartTarget = chartTarget;
   this._chartJson = chartJson;
-  this._chartHtml;
+  this._chartElement;
 }
 
 ChartGenerator.prototype = {
-  renderChart: function (chartJson, chartTarget) {
-    chartJson = chartJson || this._chartJson;
-    chartTarget = chartTarget || this._chartTarget;
+  renderChart: function (chartTarget, chartJson) {
+    this._chartTarget = chartTarget || this._chartTarget;
+    this._chartJson = chartJson || this._chartJson;
 
-    var chartHtml = this.createChartHtml(chartJson);
-    this.appendChartToTarget(chartHtml, chartTarget);
+    this._createChartElement();
+    this._appendChartToTarget();
+    this._configureChart();
   },
-  createChartHtml: function (chartJson) {
-    chartJson = chartJson || this._chartJson;
-
-    this._chartHtml = generateChartHtml(chartJson);
-    return this._chartHtml;
+  _createChartElement: function () {
+    this._chartElement = generateChartHtml(this._chartJson);
   },
-  appendChartToTarget: function (chartHtml, chartTarget) {
-    chartHtml = chartHtml || this._chartHtml;
-    chartTarget = chartTarget || this._chartTarget;
-
-    chartTarget.appendChild(chartHtml);
+  _appendChartToTarget: function () {
+    this._chartTarget.appendChild(this._chartElement);
+  },
+  _configureChart: function () {
+    configureChart(this._chartElement, this._chartJson);
   }
 }
 
