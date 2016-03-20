@@ -2,7 +2,6 @@
 
 var $ = require('../helper');
 var BlockTooltip = require('./block-tooltip');
-var generateChartHtml = require('./generate-chart-html');
 var configureChart = require('./configure-chart');
 var blockColors = require('../constants').blockColors;
 
@@ -20,33 +19,22 @@ var ChartGenerator = function (chartTarget, chartJson) {
 
 ChartGenerator.prototype = {
   renderChart: function (chartTarget, chartJson) {
-    var self = this;
-
     this._chartTarget = chartTarget || this._chartTarget;
     this._chartJson = chartJson || this._chartJson;
 
-    this._createChartElement();
-
-    this._appendChartTableToTarget();
-    this._appendChartTimelineToTarget();
-
+    this._createChart();
+    this._appendChartToTarget();
     this._configureChart();
-
     this._colorizeBlocks();
-
     this._createTooltips();
-
     this._bindEvents();
   },
-  _createChartElement: function () {
-    var chartInfo = generateChartHtml(this._chartJson);
-    this._chartTable = chartInfo[0];
-    this._chartTimeline = chartInfo[1];
+  _createChart: function () {
+    this._chartTable = this._createTable();
+    this._chartTimeline = this._createTimeLine();
   },
-  _appendChartTableToTarget: function () {
+  _appendChartToTarget: function () {
     this._chartTarget.appendChild(this._chartTable);
-  },
-  _appendChartTimelineToTarget: function () {
     this._chartTarget.appendChild(this._chartTimeline);
   },
   _configureChart: function () {
@@ -54,6 +42,7 @@ ChartGenerator.prototype = {
   },
   _colorizeBlocks: function () {
     var self = this;
+
     var blocks = this._chartTable.querySelectorAll('.chart__block');
     Array.prototype.forEach.call(blocks, function (block) {
       block.style.backgroundColor = self._getNextBlockColor();
@@ -65,9 +54,74 @@ ChartGenerator.prototype = {
   },
   _bindEvents: function () {
     var self = this;
+
     window.addEventListener('resize', function () {
       self._configureChart();
     });
+  },
+  _createTable: function () {
+    var self = this;
+
+    var $table = $.create('table');
+    $table.classList.add('chart');
+
+    this._chartJson.rows.forEach(function (row) {
+      var $row = self._createRow(row);
+      $table.appendChild($row);
+    });
+
+    return $table;
+  },
+  _createTimeLine: function () {
+    var $timeline = $.create('div');
+    $timeline.classList.add('chart-timeline');
+
+    return $timeline;
+  },
+  _createRow: function (row) {
+    var $row = $.create('tr');
+
+    $row.classList.add('chart__row');
+
+    var $caption = this._createCaption(row);
+    var $blocksContainer = this._createBlocksContainer(row);
+
+    $row.appendChild($caption);
+    $row.appendChild($blocksContainer);
+
+    return $row;
+  },
+  _createCaption: function (row) {
+    var $caption = $.create('td');
+
+    $caption.innerHTML = row.name;
+    $caption.classList.add('chart__cell');
+    $caption.classList.add('chart__cell--blocks-caption');
+
+    return $caption;
+  },
+  _createBlocksContainer: function (row) {
+    var self = this;
+
+    var $blocksContainer = $.create('td');
+
+    $blocksContainer.classList.add('chart__cell');
+    $blocksContainer.classList.add('chart__cell--blocks-container');
+
+    row.blocks.forEach(function (block) {
+      var $block = self._createBlock(block);
+      $blocksContainer.appendChild($block);
+    });
+
+    return $blocksContainer;
+  },
+  _createBlock: function (block) {
+    var $block = $.create('div');
+
+    $block.dataset.blockName = block.name;
+    $block.classList.add('chart__block');
+
+    return $block;
   },
   _getNextBlockColor: function () {
     this._blockColorIndex = ++this._blockColorIndex < blockColors.length ?
