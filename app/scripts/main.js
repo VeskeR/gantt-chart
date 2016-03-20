@@ -1,3 +1,5 @@
+'use strict';
+
 var $ = require('./query-selector');
 var ChartGenerator = require('./chart-generator');
 var chartTempate = require('./chart-template');
