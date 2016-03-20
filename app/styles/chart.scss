@@ -42,6 +42,7 @@
       height: $chart-block-height;
       line-height: $chart-block-height;
       text-align: center;
+      box-shadow: $material-1;
 
       &--tooltip {
         z-index: 1;
