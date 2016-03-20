@@ -10,7 +10,7 @@ var chart = {
         {
           name: 'Review',
           startTime: '2016-3-1',
-          endTime: '2016-3-2'
+          endTime: '2016-3-4'
         }
       ]
     },
@@ -19,8 +19,8 @@ var chart = {
       blocks: [
         {
           name: 'Setup',
-          startTime: '2016-3-2',
-          endTime: '2016-3-3'
+          startTime: '2016-3-4',
+          endTime: '2016-3-8'
         }
       ]
     },
@@ -29,8 +29,8 @@ var chart = {
       blocks: [
         {
           name: 'Coding',
-          startTime: '2016-3-2',
-          endTime: '2016-3-4'
+          startTime: '2016-3-8',
+          endTime: '2016-3-16'
         }
       ]
     },
@@ -39,13 +39,13 @@ var chart = {
       blocks: [
         {
           name: 'Integration Tests',
-          startTime: '2016-3-4',
-          endTime: '2016-3-5'
+          startTime: '2016-3-16',
+          endTime: '2016-3-18'
         },
         {
           name: 'Customer Tests',
-          startTime: '2016-3-5',
-          endTime: '2016-3-6'
+          startTime: '2016-3-18',
+          endTime: '2016-3-20'
         }
       ]
     },
@@ -54,13 +54,13 @@ var chart = {
       blocks: [
         {
           name: 'Setup',
-          startTime: '2016-3-6',
-          endTime: '2016-3-7'
+          startTime: '2016-3-20',
+          endTime: '2016-3-24'
         },
         {
           name: 'Go-Live!',
-          startTime: '2016-3-7',
-          endTime: '2016-3-8'
+          startTime: '2016-3-24',
+          endTime: '2016-3-25'
         }
       ]
     },
@@ -69,8 +69,8 @@ var chart = {
       blocks: [
         {
           name: 'Training',
-          startTime: '2016-3-8',
-          endTime: '2016-3-9'
+          startTime: '2016-3-24',
+          endTime: '2016-3-26'
         }
       ]
     },
@@ -79,8 +79,8 @@ var chart = {
       blocks: [
         {
           name: 'Support',
-          startTime: '2016-3-9',
-          endTime: '2016-3-20'
+          startTime: '2016-3-26',
+          endTime: '2016-3-31'
         }
       ]
     },
@@ -90,7 +90,7 @@ var chart = {
         {
           name: 'Project Management',
           startTime: '2016-3-1',
-          endTime: '2016-3-20'
+          endTime: '2016-3-31'
         }
       ]
     }
