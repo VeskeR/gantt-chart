@@ -5,14 +5,18 @@ var generateChart = function(chartJson) {
   var chartEndTime = parseTime(chartJson.endTime);
 
   var $chart = $.create('table');
+  $chart.classList.add('chart');
 
   chartJson.rows.forEach(function (row) {
     var $row = $.create('tr');
+    $row.classList.add('chart__row');
 
     var $name = $.create('td');
     $name.innerHTML = row.name;
+    $name.classList.add('chart__cell');
 
     var $blocks = $.create('td');
+    $blocks.classList.add('chart__cell');
 
     row.blocks.forEach(function (block) {
       var $block = $.create('div');
