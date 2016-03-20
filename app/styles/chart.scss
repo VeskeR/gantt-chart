@@ -16,18 +16,19 @@
 
     &__cell {
       position: relative;
-      padding: 1rem 0;
       color: $grey-5;
       font-size: 1.2rem;
       vertical-align: middle;
 
-      &:first-of-type {
+      &--blocks-caption {
         width: 20%;
         padding: 1rem;
         text-align: right;
       }
 
       &--blocks-container {
+        padding: 1rem 0;
+        margin: 0 1rem;
         display: flex;
         align-items: center;
         justify-content: flex-start;
@@ -41,6 +42,22 @@
       height: $chart-block-height;
       line-height: $chart-block-height;
       text-align: center;
+
+      &--tooltip {
+        z-index: 1;
+        display: none;
+        position: absolute;
+        top: -80%;
+        height: 40px;
+        padding: 0 .5rem;
+        line-height: $chart-block-tooltip-height;
+        text-align: center;
+        font-size: 1rem;
+        color: $grey-5;
+        background-color: $white;
+        box-shadow: $material-4;
+        white-space: nowrap;
+      }
     }
   }
 }

@@ -13,6 +13,7 @@ var generateChartHtml = function(chartJson) {
     var $name = $.create('td');
     $name.innerHTML = row.name;
     $name.classList.add('chart__cell');
+    $name.classList.add('chart__cell--blocks-caption');
 
     var $blocks = $.create('td');
     $blocks.classList.add('chart__cell');
