@@ -17,10 +17,12 @@ var generateChart = function(chartJson) {
 
     var $blocks = $.create('td');
     $blocks.classList.add('chart__cell');
+    $blocks.classList.add('chart__cell--blocks-container');
 
     row.blocks.forEach(function (block) {
       var $block = $.create('div');
       $block.innerHTML = block.name;
+      $block.classList.add('chart__block');
 
       $blocks.appendChild($block);
     });
