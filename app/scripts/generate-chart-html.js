@@ -20,7 +20,7 @@ var generateChartHtml = function(chartJson) {
 
     row.blocks.forEach(function (block) {
       var $block = $.create('div');
-      $block.innerHTML = block.name;
+      $block.dataset.blockName = block.name;
       $block.classList.add('chart__block');
 
       $blocks.appendChild($block);
