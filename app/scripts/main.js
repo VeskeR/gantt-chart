@@ -1,8 +1,8 @@
 var $ = require('./query-selector');
 var chartTempate = require('./chart-template');
-var generateChart = require('./generate-chart');
+var ChartGenerator = require('./chart-generator');
 
-var chart = generateChart(chartTempate);
-console.log(chart);
+var chartTarget = $.first('.wrapper__content--chart-target');
 
-$.first('.wrapper__content--chart-target').appendChild(chart);
+var chartGenerator = new ChartGenerator(chartTarget, chartTempate);
+chartGenerator.renderChart();

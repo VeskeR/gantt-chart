@@ -1,6 +1,6 @@
 var $ = require('./query-selector');
 
-var generateChart = function(chartJson) {
+var generateChartHtml = function(chartJson) {
   var chartStartTime = parseTime(chartJson.startTime);
   var chartEndTime = parseTime(chartJson.endTime);
 
@@ -40,4 +40,4 @@ function parseTime(stringTime) {
   return new Date(stringTime);
 }
 
-module.exports = generateChart;
+module.exports = generateChartHtml;
