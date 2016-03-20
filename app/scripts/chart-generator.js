@@ -1,3 +1,5 @@
+'use strict';
+
 var $ = require('./query-selector');
 var generateChartHtml = require('./generate-chart-html');
 var configureChart = require('./configure-chart');
@@ -15,6 +17,8 @@ ChartGenerator.prototype = {
 
     this._createChartElement();
     this._appendChartToTarget();
+    console.log('Chart DOM element:');
+    console.log(this._chartElement);
     this._configureChart();
   },
   _createChartElement: function () {

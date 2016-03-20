@@ -1,9 +1,8 @@
+'use strict';
+
 var $ = require('./query-selector');
 
 var generateChartHtml = function(chartJson) {
-  var chartStartTime = parseTime(chartJson.startTime);
-  var chartEndTime = parseTime(chartJson.endTime);
-
   var $chart = $.create('table');
   $chart.classList.add('chart');
 
@@ -34,10 +33,6 @@ var generateChartHtml = function(chartJson) {
   });
 
   return $chart;
-}
-
-function parseTime(stringTime) {
-  return new Date(stringTime);
 }
 
 module.exports = generateChartHtml;

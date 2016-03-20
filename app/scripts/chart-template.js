@@ -1,4 +1,5 @@
 'use strict';
+
 var chart = {
   startTime: '2016-3-1',
   endTime: '2016-3-31',
