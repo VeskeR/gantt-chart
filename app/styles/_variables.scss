@@ -1,5 +1,6 @@
 // Sizes
 $chart-block-height: 40px;
+$chart-block-tooltip-height: $chart-block-height;
 
 // Colors
 $white: #fff;
@@ -13,7 +14,7 @@ $grey-7: hsl(0, 0%, 5%);
 $black: #000;
 
 // Material box shadows
-$material-1: 0px 2px 4px rgba($black, 0.3);
-$material-2: 0px 4px 8px rgba($black, 0.3);
-$material-3: 0px 6px 12px rgba($black, 0.3);
-$material-4: 0px 8px 16px rgba($black, 0.3);
+$material-1: 0px 1px 4px rgba($black, 0.3);
+$material-2: 0px 3px 8px rgba($black, 0.3);
+$material-3: 0px 5px 12px rgba($black, 0.3);
+$material-4: 0px 7px 16px rgba($black, 0.3);
