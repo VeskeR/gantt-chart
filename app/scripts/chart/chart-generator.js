@@ -4,24 +4,26 @@ var $ = require('../helper');
 var BlockTooltip = require('./block-tooltip');
 var blockColors = require('../constants').blockColors;
 
-var ChartGenerator = function (chartTarget, chartJson) {
+var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
   this._chartTarget = chartTarget;
   this._chartJson = chartJson;
+  this._timelineInterval = timelineInterval || 7;
 
   this._chartTable = null;
   this._chartTimeline = null;
 
   this._blockTooltips = [];
 
-  this._blockColorIndex = Math.random() * blockColors.length | 0;
+  this._currBlockColorIndex = Math.random() * blockColors.length | 0;
 
   this._controller();
 }
 
 ChartGenerator.prototype = {
-  renderChart: function (chartTarget, chartJson) {
+  renderChart: function (chartTarget, chartJson, timelineInterval) {
     this._chartTarget = chartTarget || this._chartTarget;
     this._chartJson = chartJson || this._chartJson;
+    this._timelineInterval = timelineInterval || this._timelineInterval;
 
     this._createChart();
     this._appendChartToTarget();
@@ -60,7 +62,7 @@ ChartGenerator.prototype = {
   },
   _createChart: function () {
     this._chartTable = this._createTable();
-    this._chartTimeline = this._createTimeLine();
+    this._chartTimeline = this._createTimeline();
   },
   _appendChartToTarget: function () {
     this._chartTarget.appendChild(this._chartTable);
@@ -119,9 +121,13 @@ ChartGenerator.prototype = {
 
     return $table;
   },
-  _createTimeLine: function () {
+  _createTimeline: function () {
     var $timeline = $.create('div');
     $timeline.classList.add('chart-timeline');
+
+    var breakpointsCount = this._getTimelineBreakpointsCount();
+    var breakpoints = this._getTimelineBreakpoints(breakpointsCount);
+    console.log(breakpoints);
 
     return $timeline;
   },
@@ -170,6 +176,23 @@ ChartGenerator.prototype = {
 
     return $block;
   },
+  _getTimelineBreakpointsCount: function () {
+    return Math.round(this._chartDuration / this._timelineInterval) + 1;
+  },
+  _getTimelineBreakpoints: function (count) {
+    var breakpoints = [];
+    var currBreakpointDate = new Date(this._chartJson.startTime);
+
+    for (var i = 0; i < count; i++) {
+      if (currBreakpointDate > this._chartJson.endTime) {
+        currBreakpointDate = new Date(this._chartJson.endTime);
+      }
+      breakpoints.push(new Date(currBreakpointDate));
+      currBreakpointDate.setDate(currBreakpointDate.getDate() + this._timelineInterval);
+    }
+
+    return breakpoints;
+  },
   _getRelativePositionInfo: function (startTime, endTime, containerWidth) {
     startTime = startTime || new Date(0);
     endTime = endTime || new Date(0);
@@ -191,10 +214,10 @@ ChartGenerator.prototype = {
     }
   },
   _getNextBlockColor: function () {
-    this._blockColorIndex = ++this._blockColorIndex < blockColors.length ?
-                            this._blockColorIndex :
+    this._currBlockColorIndex = ++this._currBlockColorIndex < blockColors.length ?
+                            this._currBlockColorIndex :
                             0;
-    return blockColors[this._blockColorIndex];
+    return blockColors[this._currBlockColorIndex];
   },
   _getRandomBlockColor: function () {
     return blockColors[Math.random() * blockColors.length | 0];
