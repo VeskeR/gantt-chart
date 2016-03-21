@@ -2,7 +2,6 @@
 
 var $ = require('../helper');
 var BlockTooltip = require('./block-tooltip');
-var configureChart = require('./configure-chart');
 var blockColors = require('../constants').blockColors;
 
 var ChartGenerator = function (chartTarget, chartJson) {
@@ -15,6 +14,8 @@ var ChartGenerator = function (chartTarget, chartJson) {
   this._blockTooltips = [];
 
   this._blockColorIndex = Math.random() * blockColors.length | 0;
+
+  this._controller();
 }
 
 ChartGenerator.prototype = {
@@ -24,10 +25,38 @@ ChartGenerator.prototype = {
 
     this._createChart();
     this._appendChartToTarget();
-    this._configureChart();
+    this._setBlocksPositions();
     this._colorizeBlocks();
     this._createTooltips();
     this._bindEvents();
+  },
+  _controller: function () {
+    this._processChartJson();
+
+    this._chartDuration = this._chartDuration ||
+                          this._getDaysBetweenDates(
+                            this._chartJson.startTime,
+                            this._chartJson.endTime
+                          );
+  },
+  _processChartJson: function () {
+    this._chartJson.startTime = new Date(this._chartJson.startTime);
+    this._chartJson.endTime = new Date(this._chartJson.endTime);
+    this._chartJson.rows.forEach(function (row) {
+      row.blocks.forEach(function (block) {
+        block.startTime = new Date(block.startTime);
+        block.endTime = new Date(block.endTime);
+      });
+    });
+  },
+  _getDaysBetweenDates: function (firstDate, secondDate) {
+    firstDate = firstDate || new Date(0);
+    secondDate = secondDate || new Date(0);
+
+    var diff = Math.abs(firstDate.getTime() - secondDate.getTime());
+    var daysDiff = Math.ceil(diff / 1000 / 60 / 60 / 24);
+
+    return daysDiff;
   },
   _createChart: function () {
     this._chartTable = this._createTable();
@@ -37,8 +66,26 @@ ChartGenerator.prototype = {
     this._chartTarget.appendChild(this._chartTable);
     this._chartTarget.appendChild(this._chartTimeline);
   },
-  _configureChart: function () {
-    configureChart(this._chartTable, this._chartJson);
+  _setBlocksPositions: function () {
+    for (var i = 0; i < this._chartJson.rows.length; i++) {
+      var row = this._chartJson.rows[i];
+      var $blocksContainer = this._chartTable.querySelectorAll('.chart__cell--blocks-container')[i];
+      var containerWidth = $.compStyles($blocksContainer).width;
+
+      for (var j = 0; j < row.blocks.length; j++) {
+        var block = row.blocks[j];
+        var $block = $blocksContainer.querySelectorAll('.chart__block')[j];
+
+        var blockPositionInfo = this._getRelativePositionInfo(
+          block.startTime,
+          block.endTime,
+          containerWidth
+        );
+
+        $block.style.width = blockPositionInfo.widthPercents;
+        $block.style.left = blockPositionInfo.leftPercents;
+      }
+    }
   },
   _colorizeBlocks: function () {
     var self = this;
@@ -56,7 +103,7 @@ ChartGenerator.prototype = {
     var self = this;
 
     window.addEventListener('resize', function () {
-      self._configureChart();
+      // self._setBlocksPositions();
     });
   },
   _createTable: function () {
@@ -122,6 +169,26 @@ ChartGenerator.prototype = {
     $block.classList.add('chart__block');
 
     return $block;
+  },
+  _getRelativePositionInfo: function (startTime, endTime, containerWidth) {
+    startTime = startTime || new Date(0);
+    endTime = endTime || new Date(0);
+    containerWidth = parseInt(containerWidth) || 0;
+
+    var chartStartTime = this._chartJson.startTime;
+    var chartEndTime = this._chartJson.endTime;
+
+    var daysToBlockStart = this._getDaysBetweenDates(chartStartTime, startTime);
+    var daysToBlockEnd = this._getDaysBetweenDates(chartStartTime, endTime);
+
+    var k = 1 / this._chartDuration;
+
+    return {
+      leftPx: containerWidth * k * daysToBlockStart + 'px',
+      widthPx: containerWidth * k * Math.abs(daysToBlockEnd - daysToBlockStart) + 'px',
+      leftPercents: k * daysToBlockStart * 100 + '%',
+      widthPercents: k * Math.abs(daysToBlockEnd - daysToBlockStart) * 100 + '%'
+    }
   },
   _getNextBlockColor: function () {
     this._blockColorIndex = ++this._blockColorIndex < blockColors.length ?

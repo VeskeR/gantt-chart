@@ -19,7 +19,9 @@ BlockTooltip.prototype = {
   _createElement: function () {
     var tooltip = $.create('div');
     tooltip.classList.add('chart__block--tooltip');
-    tooltip.innerHTML = this._blockInfo.name;
+    tooltip.innerHTML = this._blockInfo.name + ', ' +
+                        this._blockInfo.startTime.toLocaleDateString() +
+                        ' - ' + this._blockInfo.endTime.toLocaleDateString();
 
     this._tooltipElement = tooltip;
   },
