@@ -65,5 +65,13 @@
     height: $chart-timeline-height;
     margin-left: calc(20% + 2rem);
     position: relative;
+
+    &__breakpoint {
+      position: absolute;
+      height: 40px;
+      line-height: 40px;
+      font-size: .8rem;
+      transform: translateX(-50%);
+    }
   }
 }

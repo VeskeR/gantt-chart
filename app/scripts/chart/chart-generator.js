@@ -122,12 +122,17 @@ ChartGenerator.prototype = {
     return $table;
   },
   _createTimeline: function () {
+    var self = this;
     var $timeline = $.create('div');
     $timeline.classList.add('chart-timeline');
 
     var breakpointsCount = this._getTimelineBreakpointsCount();
     var breakpoints = this._getTimelineBreakpoints(breakpointsCount);
-    console.log(breakpoints);
+
+    breakpoints.forEach(function (breakpoint) {
+      var $breakpoint = self._createBreakpoint(breakpoint);
+      $timeline.appendChild($breakpoint);
+    });
 
     return $timeline;
   },
@@ -192,6 +197,14 @@ ChartGenerator.prototype = {
     }
 
     return breakpoints;
+  },
+  _createBreakpoint: function (breakpoint) {
+    var $breakpoint = $.create('div');
+
+    $breakpoint.classList.add('chart-timeline__breakpoint');
+    $breakpoint.innerHTML = breakpoint.toLocaleDateString();
+
+    return $breakpoint;
   },
   _getRelativePositionInfo: function (startTime, endTime, containerWidth) {
     startTime = startTime || new Date(0);
