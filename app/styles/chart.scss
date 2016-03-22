@@ -38,13 +38,14 @@
 
     &__block {
       position: absolute;
+      z-index: 1;
       height: $chart-block-height;
       line-height: $chart-block-height;
       text-align: center;
       box-shadow: $material-1;
 
       &--tooltip {
-        z-index: 1;
+        z-index: 2;
         display: none;
         position: absolute;
         top: -80%;
@@ -72,6 +73,15 @@
       line-height: 40px;
       font-size: .8rem;
       transform: translateX(-50%);
+
+      &--pipe {
+        position: absolute;
+        z-index: -1;
+        left: 50%;
+        width: 1px;
+        transform: translateX(-50%);
+        background-color: $grey-4;
+      }
     }
   }
 }
