@@ -9,8 +9,7 @@ var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
   this._chartJson = chartJson;
   this._timelineInterval = timelineInterval || 7;
 
-  this._chartTable = null;
-  this._chartTimeline = null;
+  this._chart = null;
 
   this._breakpoints = [];
   this._blockTooltips = [];
@@ -21,7 +20,18 @@ var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
 }
 
 ChartGenerator.prototype = {
-  renderChart: function (chartTarget, chartJson, timelineInterval) {
+  _controller: function () {
+    this._processChartJson();
+
+    this._chartDuration = this._chartDuration ||
+                          this._getDaysBetweenDates(
+                            this._chartJson.startTime,
+                            this._chartJson.endTime
+                          );
+
+    this._renderChart();
+  },
+  _renderChart: function (chartTarget, chartJson, timelineInterval) {
     this._chartTarget = chartTarget || this._chartTarget;
     this._chartJson = chartJson || this._chartJson;
     this._timelineInterval = timelineInterval || this._timelineInterval;
@@ -34,15 +44,6 @@ ChartGenerator.prototype = {
     this._colorizeBlocks();
     this._createTooltips();
     this._bindEvents();
-  },
-  _controller: function () {
-    this._processChartJson();
-
-    this._chartDuration = this._chartDuration ||
-                          this._getDaysBetweenDates(
-                            this._chartJson.startTime,
-                            this._chartJson.endTime
-                          );
   },
   _processChartJson: function () {
     this._chartJson.startTime = new Date(this._chartJson.startTime);
@@ -64,17 +65,141 @@ ChartGenerator.prototype = {
     return daysDiff;
   },
   _createChart: function () {
-    this._chartTable = this._createTable();
-    this._chartTimeline = this._createTimeline();
+    var $chart = $.create('div');
+
+    $chart.classList.add('chart');
+
+    var $chartHeader = this._createChartHeader();
+    var $chartBody = this._createChartBody();
+
+    $chart.appendChild($chartHeader);
+    $chart.appendChild($chartBody);
+
+    this._chart = $chart;
+  },
+  _createChartHeader: function () {
+    var self = this;
+
+    var $chartHeader = $.create('div');
+    $chartHeader.classList.add('chart__header');
+
+    this._chartJson.rows.forEach(function (row) {
+      var $caption = self._createCaption(row);
+      $chartHeader.appendChild($caption);
+    });
+
+    return $chartHeader;
+  },
+  _createCaption: function (row) {
+    var $caption = $.create('div');
+
+    $caption.innerHTML = row.name;
+    $caption.classList.add('chart__header--caption');
+    $caption.classList.add('chart__cell');
+
+    return $caption;
+  },
+  _createChartBody: function () {
+    var self = this;
+
+    var $chartBody = $.create('div');
+    $chartBody.classList.add('chart__body');
+
+    this._chartJson.rows.forEach(function (row) {
+      var $blocksContainer = self._createBlocksContainer(row);
+      $chartBody.appendChild($blocksContainer);
+    });
+
+    var $timeline = this._createTimeline();
+    $chartBody.appendChild($timeline);
+
+    return $chartBody;
+  },
+  _createBlocksContainer: function (row) {
+    var $blocksContainer = $.create('div');
+
+    $blocksContainer.classList.add('chart__body--blocks-container');
+    $blocksContainer.classList.add('chart__cell');
+
+    var $blocksContainerWrapper = this._createBlocksContainerWrapper(row);
+    $blocksContainer.appendChild($blocksContainerWrapper);
+
+    return $blocksContainer;
+  },
+  _createBlocksContainerWrapper: function (row) {
+    var self = this;
+
+    var $blocksContainerWrapper = $.create('div');
+    $blocksContainerWrapper.classList.add('chart__body--blocks-container--wrapper');
+
+    row.blocks.forEach(function (block) {
+      var $block = self._createBlock(block);
+      $blocksContainerWrapper.appendChild($block);
+    });
+
+    return $blocksContainerWrapper;
+  },
+  _createBlock: function (block) {
+    var $block = $.create('div');
+    $block.classList.add('chart__block');
+    return $block;
+  },
+  _createTimeline: function () {
+    var self = this;
+
+    var $timeline = $.create('div');
+    $timeline.classList.add('chart__body--timeline');
+
+    var breakpointsCount = this._getBreakpointsCount();
+    this._breakpoints = this._getBreakpoints(breakpointsCount);
+
+    this._breakpoints.forEach(function (breakpoint) {
+      var $breakpoint = self._createBreakpoint(breakpoint);
+      $timeline.appendChild($breakpoint);
+    });
+
+    return $timeline;
+  },
+  _getBreakpointsCount: function () {
+    return Math.round(this._chartDuration / this._timelineInterval) + 1;
+  },
+  _getBreakpoints: function (count) {
+    var breakpoints = [];
+    var currBreakpointDate = new Date(this._chartJson.startTime);
+
+    for (var i = 0; i < count; i++) {
+      if (currBreakpointDate > this._chartJson.endTime) {
+        currBreakpointDate = new Date(this._chartJson.endTime);
+      }
+      breakpoints.push(new Date(currBreakpointDate));
+      currBreakpointDate.setDate(currBreakpointDate.getDate() + this._timelineInterval);
+    }
+
+    return breakpoints;
+  },
+  _createBreakpoint: function (breakpoint) {
+    var $breakpoint = $.create('div');
+
+    $breakpoint.classList.add('chart__breakpoint');
+    $breakpoint.innerHTML = breakpoint.toLocaleDateString();
+
+    var $pipe = this._createBreakpointPipe();
+    $breakpoint.appendChild($pipe);
+
+    return $breakpoint;
+  },
+  _createBreakpointPipe: function () {
+    var $pipe = $.create('div');
+    $pipe.classList.add('chart__breakpoint--pipe');
+    return $pipe;
   },
   _appendChartToTarget: function () {
-    this._chartTarget.appendChild(this._chartTable);
-    this._chartTarget.appendChild(this._chartTimeline);
+    this._chartTarget.appendChild(this._chart);
   },
   _setBlockPositions: function () {
     for (var i = 0; i < this._chartJson.rows.length; i++) {
       var row = this._chartJson.rows[i];
-      var $blocksContainer = this._chartTable.querySelectorAll('.chart__cell--blocks-container')[i];
+      var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container')[i];
       var containerWidth = $.compStyles($blocksContainer).width;
 
       for (var j = 0; j < row.blocks.length; j++) {
@@ -93,8 +218,9 @@ ChartGenerator.prototype = {
     }
   },
   _setBreakpointPositions: function () {
-    var containerWidth = $.compStyles(this._chartTimeline).width;
-    var $breakpoints = this._chartTimeline.querySelectorAll('.chart-timeline__breakpoint');
+    var $chartTimeline = this._chart.querySelector('.chart__body--timeline');
+    var $breakpoints = $chartTimeline.querySelectorAll('.chart__breakpoint');
+    var containerWidth = $.compStyles($chartTimeline).width;
 
     for (var i = 0; i < this._breakpoints.length; i++) {
       var breakpoint = this._breakpoints[i];
@@ -110,17 +236,22 @@ ChartGenerator.prototype = {
     }
   },
   _setBreakpointPipeSizes: function () {
-    var $pipes = this._chartTimeline.querySelectorAll('.chart-timeline__breakpoint--pipe');
-    var chartHeight = $.compStyles(this._chartTable).height;
+    var $pipes = this._chart.querySelectorAll('.chart__breakpoint--pipe');
+
+    var $bodyHeight = this._chart.querySelector('.chart__body');
+    var $timelineHeight = this._chart.querySelector('.chart__body--timeline');
+    var chartBlocksHeight = parseInt($.compStyles($bodyHeight).height) -
+                            parseInt($.compStyles($timelineHeight).height);
+
     Array.prototype.forEach.call($pipes, function ($pipe) {
-      $pipe.style.height = chartHeight;
-      $pipe.style.top = '-' + chartHeight;
+      $pipe.style.height = chartBlocksHeight + 'px';
+      $pipe.style.top = '-' + chartBlocksHeight + 'px';
     });
   },
   _colorizeBlocks: function () {
     var self = this;
 
-    var blocks = this._chartTable.querySelectorAll('.chart__block');
+    var blocks = this._chart.querySelectorAll('.chart__block');
     Array.prototype.forEach.call(blocks, function (block) {
       block.style.backgroundColor = self._getNextBlockColor();
     });
@@ -131,116 +262,32 @@ ChartGenerator.prototype = {
   },
   _bindEvents: function () {
     var self = this;
-
-    window.addEventListener('resize', function () {
-      // self._setBlockPositions();
-    });
   },
-  _createTable: function () {
-    var self = this;
-
-    var $table = $.create('table');
-    $table.classList.add('chart');
-
-    this._chartJson.rows.forEach(function (row) {
-      var $row = self._createRow(row);
-      $table.appendChild($row);
-    });
-
-    return $table;
+  _getNextBlockColor: function () {
+    this._currBlockColorIndex = ++this._currBlockColorIndex < blockColors.length ?
+                            this._currBlockColorIndex :
+                            0;
+    return blockColors[this._currBlockColorIndex];
   },
-  _createTimeline: function () {
-    var self = this;
-    var $timeline = $.create('div');
-    $timeline.classList.add('chart-timeline');
-
-    var breakpointsCount = this._getTimelineBreakpointsCount();
-    this._breakpoints = this._getTimelineBreakpoints(breakpointsCount);
-
-    this._breakpoints.forEach(function (breakpoint) {
-      var $breakpoint = self._createBreakpoint(breakpoint);
-      $timeline.appendChild($breakpoint);
-    });
-
-    return $timeline;
+  _getRandomBlockColor: function () {
+    return blockColors[Math.random() * blockColors.length | 0];
   },
-  _createRow: function (row) {
-    var $row = $.create('tr');
+  _generateTooltipsArray: function () {
+    for (var i = 0; i < this._chartJson.rows.length; i++) {
+      var row = this._chartJson.rows[i];
+      var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container--wrapper')[i];
+      for (var j = 0; j < row.blocks.length; j++) {
+        var block = row.blocks[j];
+        var $block = $blocksContainer.querySelectorAll('.chart__block')[j];
 
-    $row.classList.add('chart__row');
-
-    var $caption = this._createCaption(row);
-    var $blocksContainer = this._createBlocksContainer(row);
-
-    $row.appendChild($caption);
-    $row.appendChild($blocksContainer);
-
-    return $row;
-  },
-  _createCaption: function (row) {
-    var $caption = $.create('td');
-
-    $caption.innerHTML = row.name;
-    $caption.classList.add('chart__cell');
-    $caption.classList.add('chart__cell--blocks-caption');
-
-    return $caption;
-  },
-  _createBlocksContainer: function (row) {
-    var self = this;
-
-    var $blocksContainer = $.create('td');
-
-    $blocksContainer.classList.add('chart__cell');
-    $blocksContainer.classList.add('chart__cell--blocks-container');
-
-    row.blocks.forEach(function (block) {
-      var $block = self._createBlock(block);
-      $blocksContainer.appendChild($block);
-    });
-
-    return $blocksContainer;
-  },
-  _createBlock: function (block) {
-    var $block = $.create('div');
-
-    $block.dataset.blockName = block.name;
-    $block.classList.add('chart__block');
-
-    return $block;
-  },
-  _getTimelineBreakpointsCount: function () {
-    return Math.round(this._chartDuration / this._timelineInterval) + 1;
-  },
-  _getTimelineBreakpoints: function (count) {
-    var breakpoints = [];
-    var currBreakpointDate = new Date(this._chartJson.startTime);
-
-    for (var i = 0; i < count; i++) {
-      if (currBreakpointDate > this._chartJson.endTime) {
-        currBreakpointDate = new Date(this._chartJson.endTime);
+        this._blockTooltips.push(new BlockTooltip($block, block));
       }
-      breakpoints.push(new Date(currBreakpointDate));
-      currBreakpointDate.setDate(currBreakpointDate.getDate() + this._timelineInterval);
     }
-
-    return breakpoints;
   },
-  _createBreakpoint: function (breakpoint) {
-    var $breakpoint = $.create('div');
-
-    $breakpoint.classList.add('chart-timeline__breakpoint');
-    $breakpoint.innerHTML = breakpoint.toLocaleDateString();
-
-    var $pipe = this._createBreakpointPipe();
-    $breakpoint.appendChild($pipe);
-
-    return $breakpoint;
-  },
-  _createBreakpointPipe: function () {
-    var $pipe = $.create('div');
-    $pipe.classList.add('chart-timeline__breakpoint--pipe');
-    return $pipe;
+  _initializeTooltips: function () {
+    this._blockTooltips.forEach(function (tooltip) {
+      tooltip.init();
+    });
   },
   _getRelativePositionInfo: function (startTime, endTime, containerWidth) {
     startTime = startTime || new Date(0);
@@ -261,32 +308,6 @@ ChartGenerator.prototype = {
       leftPercents: k * daysToBlockStart * 100 + '%',
       widthPercents: k * Math.abs(daysToBlockEnd - daysToBlockStart) * 100 + '%'
     }
-  },
-  _getNextBlockColor: function () {
-    this._currBlockColorIndex = ++this._currBlockColorIndex < blockColors.length ?
-                            this._currBlockColorIndex :
-                            0;
-    return blockColors[this._currBlockColorIndex];
-  },
-  _getRandomBlockColor: function () {
-    return blockColors[Math.random() * blockColors.length | 0];
-  },
-  _generateTooltipsArray: function () {
-    for (var i = 0; i < this._chartJson.rows.length; i++) {
-      var row = this._chartJson.rows[i];
-      var $blocksContainer = this._chartTable.querySelectorAll('.chart__cell--blocks-container')[i];
-      for (var j = 0; j < row.blocks.length; j++) {
-        var block = row.blocks[j];
-        var $block = $blocksContainer.querySelectorAll('.chart__block')[j];
-
-        this._blockTooltips.push(new BlockTooltip($block, block));
-      }
-    }
-  },
-  _initializeTooltips: function () {
-    this._blockTooltips.forEach(function (tooltip) {
-      tooltip.init();
-    });
   }
 };
 
