@@ -20,14 +20,7 @@ var constants = {
       {
         name: 'Setup',
         startTime: '2016-3-4',
-        endTime: '2016-3-8',
-        blocks: [
-          {
-            name: 'Setup',
-            startTime: '2016-3-4',
-            endTime: '2016-3-8'
-          }
-        ]
+        endTime: '2016-3-8'
       },
       {
         name: 'Development',
@@ -78,38 +71,17 @@ var constants = {
       {
         name: 'Training',
         startTime: '2016-3-24',
-        endTime: '2016-3-26',
-        blocks: [
-          {
-            name: 'Training',
-            startTime: '2016-3-24',
-            endTime: '2016-3-26'
-          }
-        ]
+        endTime: '2016-3-26'
       },
       {
         name: 'Support',
         startTime: '2016-3-26',
-        endTime: '2016-3-31',
-        blocks: [
-          {
-            name: 'Support',
-            startTime: '2016-3-26',
-            endTime: '2016-3-31'
-          }
-        ]
+        endTime: '2016-3-31'
       },
       {
         name: 'Project Management',
         startTime: '2016-3-1',
-        endTime: '2016-3-31',
-        blocks: [
-          {
-            name: 'Project Management',
-            startTime: '2016-3-1',
-            endTime: '2016-3-31'
-          }
-        ]
+        endTime: '2016-3-31'
       }
     ]
   },

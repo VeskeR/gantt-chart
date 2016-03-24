@@ -32,7 +32,6 @@
       width: $chart-header-width;
 
       &--caption {
-        display: flex;
         flex-direction: row-reverse;
         justify-content: space-between;
 
@@ -98,11 +97,36 @@
       overflow: scroll;
 
       &--blocks-container {
-        display: flex;
         align-items: center;
         justify-content: flex-start;
         flex-wrap: nowrap;
         padding: 0 2em 0 3em;
+
+        &-group {
+          &.visible {
+            .chart__block {
+              &--own {
+                display: none;
+              }
+
+              &--child {
+                display: block;
+              }
+            }
+          }
+
+          &.hidden {
+            .chart__block {
+              &--own {
+                display: block;
+              }
+
+              &--child {
+                display: none;
+              }
+            }
+          }
+        }
 
         &--wrapper {
           position: relative;
@@ -173,6 +197,14 @@
       color: $grey-5;
       vertical-align: middle;
       border-bottom: 1px solid $grey-2;
+
+      &.visible {
+        display: flex;
+      }
+
+      &.hidden {
+        display: none;
+      }
 
       &.second-cell {
         background-color: $grey-1;
