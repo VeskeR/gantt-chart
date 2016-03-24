@@ -75,7 +75,6 @@ ChartGenerator.prototype = {
     };
 
     this._chartInfo = processBlock(this._chartJson);
-    console.log(JSON.stringify(this._chartInfo, null, 4));
   },
   _renderChart: function () {
     this._createChart();
@@ -321,7 +320,6 @@ ChartGenerator.prototype = {
   _setBlockPositions: function () {
     var self = this;
     this._flattenedBlocks.forEach(function ($block) {
-      console.log($block);
       var $blocksContainer = self._flattenedBlocksContainers[$block.dataset.parentId];
       var containerWidth = $.compStyles($blocksContainer).width;
       var blockInfo = self._flattenedBlockInfos[$block.dataset.blockId];
