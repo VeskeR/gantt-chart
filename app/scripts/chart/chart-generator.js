@@ -27,43 +27,13 @@ ChartGenerator.prototype = {
     this._renderChart();
   },
   _processChartJson: function () {
-    this._chartJson.startTime = new Date(this._chartJson.startTime);
-    this._chartJson.endTime = new Date(this._chartJson.endTime);
-    this._chartJson.blocks.forEach(function (row) {
-      row.startTime = new Date(row.startTime);
-      row.endTime = new Date(row.endTime);
-      row.blocks.forEach(function (block) {
-        block.startTime = new Date(block.startTime);
-        block.endTime = new Date(block.endTime);
-      });
-    });
-    this._chartInfo = this._generateChartInfo();
-    console.log(JSON.stringify(this._chartInfo, null, 4));
-  },
-  _renderChart: function (chartTarget, chartJson, timelineInterval) {
-    this._chartTarget = chartTarget || this._chartTarget;
-    this._chartJson = chartJson || this._chartJson;
-    this._timelineInterval = timelineInterval || this._timelineInterval;
-
-    this._createChart();
-    this._setChartWidth();
-    this._appendChartToTarget();
-    this._setBlockPositions();
-    this._setBreakpointPositions();
-    this._setBreakpointPipeSizes();
-    this._markEveryOtherVisibleRow();
-    this._colorizeBlocks();
-    this._createTooltips();
-    this._bindEvents();
-  },
-  _generateChartInfo: function () {
     var self = this;
 
     var id = 0;
     var level = -1;
 
-    var chartStartTime = this._chartJson.startTime;
-    var chartEndTime = this._chartJson.endTime;
+    var chartStartTime = new Date(this._chartJson.startTime);
+    var chartEndTime = new Date(this._chartJson.endTime);
 
     var processBlock = function (block) {
       level++;
@@ -89,16 +59,21 @@ ChartGenerator.prototype = {
       level--;
       return processedBlock;
     };
-    return processBlock(this._chartJson);
+
+    this._chartInfo = processBlock(this._chartJson);
+    console.log(JSON.stringify(this._chartInfo, null, 4));
   },
-  _getDaysBetweenDates: function (firstDate, secondDate) {
-    firstDate = firstDate || new Date(0);
-    secondDate = secondDate || new Date(0);
-
-    var diff = Math.abs(firstDate.getTime() - secondDate.getTime());
-    var daysDiff = Math.ceil(diff / 1000 / 60 / 60 / 24);
-
-    return daysDiff;
+  _renderChart: function () {
+    this._createChart();
+    this._setChartWidth();
+    this._appendChartToTarget();
+    this._setBlockPositions();
+    this._setBreakpointPositions();
+    this._setBreakpointPipeSizes();
+    this._markEveryOtherVisibleRow();
+    this._colorizeBlocks();
+    this._createTooltips();
+    this._bindEvents();
   },
   _createChart: function () {
     var $chart = $.create('div');
@@ -119,7 +94,7 @@ ChartGenerator.prototype = {
     var $chartHeader = $.create('div');
     $chartHeader.classList.add('chart__header');
 
-    this._chartJson.blocks.forEach(function (row) {
+    this._chartInfo.blocks.forEach(function (row) {
       var $caption = self._createCaption(row);
       $chartHeader.appendChild($caption);
     });
@@ -156,7 +131,7 @@ ChartGenerator.prototype = {
     var $chartBody = $.create('div');
     $chartBody.classList.add('chart__body');
 
-    this._chartJson.blocks.forEach(function (row) {
+    this._chartInfo.blocks.forEach(function (row) {
       var $blocksContainer = self._createBlocksContainer(row);
       $chartBody.appendChild($blocksContainer);
     });
@@ -230,11 +205,11 @@ ChartGenerator.prototype = {
   },
   _getBreakpoints: function (count) {
     var breakpoints = [];
-    var currBreakpointDate = new Date(this._chartJson.startTime);
+    var currBreakpointDate = new Date(this._chartInfo.startTime);
 
     for (var i = 0; i < count; i++) {
-      if (currBreakpointDate > this._chartJson.endTime) {
-        currBreakpointDate = new Date(this._chartJson.endTime);
+      if (currBreakpointDate > this._chartInfo.endTime) {
+        currBreakpointDate = new Date(this._chartInfo.endTime);
       }
       breakpoints.push(new Date(currBreakpointDate));
       currBreakpointDate.setDate(currBreakpointDate.getDate() + this._timelineInterval);
@@ -280,8 +255,8 @@ ChartGenerator.prototype = {
     this._chartTarget.appendChild($wrapper);
   },
   _setBlockPositions: function () {
-    for (var i = 0; i < this._chartJson.blocks.length; i++) {
-      var row = this._chartJson.blocks[i];
+    for (var i = 0; i < this._chartInfo.blocks.length; i++) {
+      var row = this._chartInfo.blocks[i];
       var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container')[i];
       var containerWidth = $.compStyles($blocksContainer).width;
 
@@ -370,8 +345,8 @@ ChartGenerator.prototype = {
     return blockColors[Math.random() * blockColors.length | 0];
   },
   _generateTooltipsArray: function () {
-    for (var i = 0; i < this._chartJson.blocks.length; i++) {
-      var row = this._chartJson.blocks[i];
+    for (var i = 0; i < this._chartInfo.blocks.length; i++) {
+      var row = this._chartInfo.blocks[i];
       var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container--wrapper')[i];
       for (var j = 0; j < row.blocks.length; j++) {
         var block = row.blocks[j];
@@ -386,13 +361,22 @@ ChartGenerator.prototype = {
       tooltip.init();
     });
   },
+  _getDaysBetweenDates: function (firstDate, secondDate) {
+    firstDate = firstDate || new Date(0);
+    secondDate = secondDate || new Date(0);
+
+    var diff = Math.abs(firstDate.getTime() - secondDate.getTime());
+    var daysDiff = Math.ceil(diff / 1000 / 60 / 60 / 24);
+
+    return daysDiff;
+  },
   _getRelativePositionInfo: function (startTime, endTime, containerWidth) {
     startTime = startTime || new Date(0);
     endTime = endTime || new Date(0);
     containerWidth = parseInt(containerWidth) || 0;
 
-    var chartStartTime = this._chartJson.startTime;
-    var chartEndTime = this._chartJson.endTime;
+    var chartStartTime = this._chartInfo.startTime;
+    var chartEndTime = this._chartInfo.endTime;
 
     var daysToBlockStart = this._getDaysBetweenDates(chartStartTime, startTime);
     var daysToBlockEnd = this._getDaysBetweenDates(chartStartTime, endTime);
