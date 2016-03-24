@@ -32,10 +32,63 @@
       width: $chart-header-width;
 
       &--caption {
-        padding: 0 1em;
-        text-align: right;
-        white-space: nowrap;
-        overflow: scroll;
+        flex-direction: row-reverse;
+        justify-content: space-between;
+
+        .group-expander {
+          order: 2;
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+          width: $chart-group-expander-width;
+          min-width: $chart-group-expander-width;
+          max-width: $chart-group-expander-width;
+
+          .group-expander__arrow {
+            width: $chart-group-expander-arrow-width;
+            height: $chart-group-expander-arrow-width;
+            border-radius: 50%;
+            background-color: hsl(0, 0%, 97%);
+            box-shadow: $material-1;
+            position: relative;
+            cursor: pointer;
+
+            &::after {
+              content: '';
+              position: absolute;
+              // width: .5em;
+              // height: .5em;
+              top: 50%;
+              left: 50%;
+              border: .4em solid $grey-5;
+              transform-origin: center;
+              transform: translateX(-50%) translateY(-50%) rotate(-45deg);
+            }
+
+            &--collapsed {
+              &::after {
+                border-top-color: transparent;
+                border-right-color: transparent;
+              }
+            }
+
+            &--expanded {
+              &::after {
+                border-bottom-color: transparent;
+                border-left-color: transparent;
+              }
+            }
+          }
+        }
+
+        &--text {
+          order: 1;
+          padding: 0 1em;
+          font-size: 1.2em;
+          text-align: right;
+          white-space: nowrap;
+          overflow: scroll;
+        }
       }
     }
 
@@ -44,11 +97,36 @@
       overflow: scroll;
 
       &--blocks-container {
-        display: flex;
         align-items: center;
         justify-content: flex-start;
         flex-wrap: nowrap;
         padding: 0 2em 0 3em;
+
+        &-group {
+          &.collapsed {
+            .chart__block {
+              &--own {
+                display: none;
+              }
+
+              &--child {
+                display: block;
+              }
+            }
+          }
+
+          &.expanded {
+            .chart__block {
+              &--own {
+                display: block;
+              }
+
+              &--child {
+                display: none;
+              }
+            }
+          }
+        }
 
         &--wrapper {
           position: relative;
@@ -58,8 +136,8 @@
 
           .chart__block {
             position: absolute;
-            height: 100%;
             z-index: 1;
+            height: 100%;
             text-align: center;
             box-shadow: $material-1;
 
@@ -98,6 +176,7 @@
             line-height: $chart-breakpoint-height;
             font-size: .8em;
             transform: translateX(-50%);
+            white-space: nowrap;
 
             &--pipe {
               position: absolute;
@@ -120,7 +199,15 @@
       vertical-align: middle;
       border-bottom: 1px solid $grey-2;
 
-      &:nth-child(even) {
+      &.visible {
+        display: flex;
+      }
+
+      &.hidden {
+        display: none;
+      }
+
+      &.second-cell {
         background-color: $grey-1;
       }
     }

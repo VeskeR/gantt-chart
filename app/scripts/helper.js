@@ -1,19 +1,23 @@
 'use strict';
 
-var $ = function(query) {
+var $ = function (query) {
   return document.querySelectorAll(query);
 };
 
-$.first = function(query) {
+$.first = function (query) {
   return document.querySelector(query);
 };
 
-$.create = function(tag) {
+$.create = function (tag) {
   return document.createElement(tag);
 };
 
-$.compStyles = function(element) {
+$.compStyles = function (element) {
   return window.getComputedStyle(element);
-}
+};
+
+$.formatDate = function (date) {
+  return date.toDateString().substr(4);
+};
 
 module.exports = $;

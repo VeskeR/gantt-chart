@@ -4,9 +4,11 @@ var constants = {
   chartJsonExample: {
     startTime: '2016-3-1',
     endTime: '2016-3-31',
-    rows: [
+    blocks: [
       {
         name: 'Requirements',
+        startTime: '2016-3-1',
+        endTime: '2016-3-4',
         blocks: [
           {
             name: 'Review',
@@ -17,16 +19,13 @@ var constants = {
       },
       {
         name: 'Setup',
-        blocks: [
-          {
-            name: 'Setup',
-            startTime: '2016-3-4',
-            endTime: '2016-3-8'
-          }
-        ]
+        startTime: '2016-3-4',
+        endTime: '2016-3-8'
       },
       {
         name: 'Development',
+        startTime: '2016-3-8',
+        endTime: '2016-3-16',
         blocks: [
           {
             name: 'Coding',
@@ -37,11 +36,30 @@ var constants = {
       },
       {
         name: 'Testing',
+        startTime: '2016-3-14',
+        endTime: '2016-3-20',
         blocks: [
+          {
+            name: 'Unit Tests',
+            startTime: '2016-3-14',
+            endTime: '2016-3-16'
+          },
           {
             name: 'Integration Tests',
             startTime: '2016-3-16',
-            endTime: '2016-3-18'
+            endTime: '2016-3-18',
+            blocks: [
+              {
+                name: 'Bottom Up Testing',
+                startTime: '2016-3-16',
+                endTime: '2016-3-17'
+              },
+              {
+                name: 'Top Down Testing',
+                startTime: '2016-3-17',
+                endTime: '2016-3-18'
+              }
+            ]
           },
           {
             name: 'Customer Tests',
@@ -52,6 +70,8 @@ var constants = {
       },
       {
         name: 'Deployment',
+        startTime: '2016-3-20',
+        endTime: '2016-3-25',
         blocks: [
           {
             name: 'Setup',
@@ -67,33 +87,18 @@ var constants = {
       },
       {
         name: 'Training',
-        blocks: [
-          {
-            name: 'Training',
-            startTime: '2016-3-24',
-            endTime: '2016-3-26'
-          }
-        ]
+        startTime: '2016-3-24',
+        endTime: '2016-3-26'
       },
       {
         name: 'Support',
-        blocks: [
-          {
-            name: 'Support',
-            startTime: '2016-3-26',
-            endTime: '2016-3-31'
-          }
-        ]
+        startTime: '2016-3-26',
+        endTime: '2016-3-31'
       },
       {
         name: 'Project Management',
-        blocks: [
-          {
-            name: 'Project Management',
-            startTime: '2016-3-1',
-            endTime: '2016-3-31'
-          }
-        ]
+        startTime: '2016-3-1',
+        endTime: '2016-3-31'
       }
     ]
   },

@@ -9,12 +9,23 @@ var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
   this._chartJson = chartJson;
   this._timelineInterval = timelineInterval || 7;
 
+  this._chartInfo = null;
   this._chart = null;
+  this._chartHeader = null;
+  this._chartBody = null;
+  this._chartTimeline = null;
+
   this._pixelsPerInterval = 200;
+
+  this._flattenedBlockInfos = [];
+  this._flattenedCaptions = [];
+  this._flattenedBlocksContainers = [];
+  this._flattenedBlocks = [];
 
   this._breakpoints = [];
   this._blockTooltips = [];
 
+  this._colorCache = {};
   this._currBlockColorIndex = Math.random() * blockColors.length | 0;
 
   this._controller();
@@ -22,49 +33,61 @@ var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
 
 ChartGenerator.prototype = {
   _controller: function () {
+    var self = this;
+
     this._processChartJson();
-
-    this._chartDuration = this._chartDuration ||
-                          this._getDaysBetweenDates(
-                            this._chartJson.startTime,
-                            this._chartJson.endTime
-                          );
-
+    this._traverseChartInfoInOrder(function (infoBlock) {
+      self._flattenedBlockInfos[infoBlock.id] = infoBlock;
+    });
     this._renderChart();
   },
-  _renderChart: function (chartTarget, chartJson, timelineInterval) {
-    this._chartTarget = chartTarget || this._chartTarget;
-    this._chartJson = chartJson || this._chartJson;
-    this._timelineInterval = timelineInterval || this._timelineInterval;
+  _processChartJson: function () {
+    var self = this;
 
+    var id = 0;
+    var level = -1;
+
+    var chartStartTime = new Date(this._chartJson.startTime);
+    var chartEndTime = new Date(this._chartJson.endTime);
+
+    var processBlock = function (block) {
+      level++;
+      var processedBlock = {};
+
+      processedBlock.id = id++;
+      processedBlock.level = level;
+
+      processedBlock.name = block.name || '';
+      processedBlock.startTime = new Date(block.startTime);
+      processedBlock.endTime = new Date(block.endTime);
+      processedBlock.fromBeginning = self._getDaysBetweenDates(chartStartTime, processedBlock.startTime);
+      processedBlock.toEnd = self._getDaysBetweenDates(processedBlock.endTime, chartEndTime);
+      processedBlock.duration = self._getDaysBetweenDates(processedBlock.startTime, processedBlock.endTime);
+      processedBlock.blocks = [];
+
+      if (block.blocks && block.blocks.length > 0) {
+        for (var i = 0; i < block.blocks.length; i++) {
+          processedBlock.blocks.push(processBlock(block.blocks[i]));
+        }
+      }
+
+      level--;
+      return processedBlock;
+    };
+
+    this._chartInfo = processBlock(this._chartJson);
+  },
+  _renderChart: function () {
     this._createChart();
-    this._setChartWidth();
+    this._setChartBodyWidth();
     this._appendChartToTarget();
     this._setBlockPositions();
     this._setBreakpointPositions();
     this._setBreakpointPipeSizes();
+    this._markEveryOtherVisibleRow();
     this._colorizeBlocks();
     this._createTooltips();
     this._bindEvents();
-  },
-  _processChartJson: function () {
-    this._chartJson.startTime = new Date(this._chartJson.startTime);
-    this._chartJson.endTime = new Date(this._chartJson.endTime);
-    this._chartJson.rows.forEach(function (row) {
-      row.blocks.forEach(function (block) {
-        block.startTime = new Date(block.startTime);
-        block.endTime = new Date(block.endTime);
-      });
-    });
-  },
-  _getDaysBetweenDates: function (firstDate, secondDate) {
-    firstDate = firstDate || new Date(0);
-    secondDate = secondDate || new Date(0);
-
-    var diff = Math.abs(firstDate.getTime() - secondDate.getTime());
-    var daysDiff = Math.ceil(diff / 1000 / 60 / 60 / 24);
-
-    return daysDiff;
   },
   _createChart: function () {
     var $chart = $.create('div');
@@ -73,6 +96,9 @@ ChartGenerator.prototype = {
 
     var $chartHeader = this._createChartHeader();
     var $chartBody = this._createChartBody();
+
+    this._chartHeader = $chartHeader;
+    this._chartBody = $chartBody;
 
     $chart.appendChild($chartHeader);
     $chart.appendChild($chartBody);
@@ -85,19 +111,56 @@ ChartGenerator.prototype = {
     var $chartHeader = $.create('div');
     $chartHeader.classList.add('chart__header');
 
-    this._chartJson.rows.forEach(function (row) {
-      var $caption = self._createCaption(row);
-      $chartHeader.appendChild($caption);
-    });
+    var buildCaptions = function (blocks) {
+      blocks.forEach(function (block) {
+        var isGroup = block.blocks && block.blocks.length > 0;
+
+        var $caption = self._createCaption(block, isGroup);
+        $chartHeader.appendChild($caption);
+
+        self._flattenedCaptions[block.id] = $caption;
+
+        if (isGroup) {
+          buildCaptions(block.blocks);
+        }
+      });
+    };
+
+    buildCaptions(this._chartInfo.blocks);
+
+    // this._chartInfo.blocks.forEach(function (row) {
+    //   var $caption = self._createCaption(row);
+    //   $chartHeader.appendChild($caption);
+    // });
 
     return $chartHeader;
   },
-  _createCaption: function (row) {
+  _createCaption: function (block, isGroup) {
     var $caption = $.create('div');
 
-    $caption.innerHTML = row.name;
     $caption.classList.add('chart__header--caption');
     $caption.classList.add('chart__cell');
+    $caption.classList.add(block.level < 2 ? 'visible' : 'hidden');
+
+    $caption.dataset.blockId = block.id;
+
+    if (isGroup) {
+      var $captionGroupExpander = $.create('div');
+      $captionGroupExpander.classList.add('group-expander');
+
+      var $arrow = $.create('div');
+      $arrow.classList.add('group-expander__arrow');
+      $arrow.classList.add('group-expander__arrow--collapsed');
+      $captionGroupExpander.appendChild($arrow);
+
+      $caption.appendChild($captionGroupExpander);
+    }
+
+    var $captionText = $.create('p');
+    $captionText.innerHTML = block.name;
+    $captionText.classList.add('chart__header--caption--text');
+
+    $caption.appendChild($captionText);
 
     return $caption;
   },
@@ -107,57 +170,81 @@ ChartGenerator.prototype = {
     var $chartBody = $.create('div');
     $chartBody.classList.add('chart__body');
 
-    this._chartJson.rows.forEach(function (row) {
-      var $blocksContainer = self._createBlocksContainer(row);
-      $chartBody.appendChild($blocksContainer);
-    });
+    var buildBlocksContainers = function (blocks) {
+      blocks.forEach(function (block) {
+        var isGroup = block.blocks && block.blocks.length > 0;
+
+        var $blocksContainer = self._createBlocksContainer(block, isGroup);
+        $chartBody.appendChild($blocksContainer);
+
+        self._flattenedBlocksContainers[block.id] = $blocksContainer;
+
+        if (isGroup) {
+          buildBlocksContainers(block.blocks);
+        }
+      });
+    };
+
+    buildBlocksContainers(this._chartInfo.blocks);
+
+    // this._chartInfo.blocks.forEach(function (row) {
+    //   var $blocksContainer = self._createBlocksContainer(row);
+    //   $chartBody.appendChild($blocksContainer);
+    // });
 
     var $timeline = this._createTimeline();
+    this._chartTimeline = $timeline;
     $chartBody.appendChild($timeline);
 
     return $chartBody;
   },
-  _createBlocksContainer: function (row) {
+  _createBlocksContainer: function (block, isGroup) {
+    var self = this;
+
     var $blocksContainer = $.create('div');
 
     $blocksContainer.classList.add('chart__body--blocks-container');
     $blocksContainer.classList.add('chart__cell');
+    $blocksContainer.classList.add('collapsed');
+    $blocksContainer.classList.add(block.level < 2 ? 'visible' : 'hidden');
+    if (isGroup) {
+      $blocksContainer.classList.add('chart__body--blocks-container-group');
+    }
 
-    var $blocksContainerWrapper = this._createBlocksContainerWrapper(row);
-    $blocksContainer.appendChild($blocksContainerWrapper);
-
-    return $blocksContainer;
-  },
-  _createBlocksContainerWrapper: function (row) {
-    var self = this;
+    $blocksContainer.dataset.blockId = block.id;
 
     var $blocksContainerWrapper = $.create('div');
     $blocksContainerWrapper.classList.add('chart__body--blocks-container--wrapper');
 
-    row.blocks.forEach(function (block) {
-      var $block = self._createBlock(block);
-      $blocksContainerWrapper.appendChild($block);
-    });
+    var $block = self._createBlock(block, block);
+    $blocksContainerWrapper.appendChild($block);
+    this._flattenedBlocks.push($block);
 
-    return $blocksContainerWrapper;
+    if (isGroup) {
+      block.blocks.forEach(function (innerBlock) {
+        var $innerBlock = self._createBlock(innerBlock, block);
+        $blocksContainerWrapper.appendChild($innerBlock);
+        self._flattenedBlocks.push($innerBlock);
+      });
+    }
+
+    $blocksContainer.appendChild($blocksContainerWrapper);
+
+    return $blocksContainer;
   },
-  _createBlock: function (block) {
+  _createBlock: function (blockInfo, blockParentInfo) {
     var $block = $.create('div');
     $block.classList.add('chart__block');
+    $block.dataset.blockId = blockInfo.id;
+    $block.dataset.parentId = blockParentInfo.id;
+    $block.classList.add(blockInfo.id === blockParentInfo.id ? 'chart__block--own' : 'chart__block--child');
     return $block;
   },
   _createTimeline: function () {
+    var self = this;
 
     var $timeline = $.create('div');
     $timeline.classList.add('chart__body--timeline');
-
-    var $timelineWrapper = this._createTimelineWrapper();
-    $timeline.appendChild($timelineWrapper);
-
-    return $timeline;
-  },
-  _createTimelineWrapper: function () {
-    var self = this;
 
     var $timelineWrapper = $.create('div');
     $timelineWrapper.classList.add('chart__body--timeline--wrapper');
@@ -170,21 +257,27 @@ ChartGenerator.prototype = {
       $timelineWrapper.appendChild($breakpoint);
     });
 
-    return $timelineWrapper;
+    $timeline.appendChild($timelineWrapper);
+
+    return $timeline;
+  },
+  _getChartBodyWidth: function () {
+    var intervalCount = this._getInvervalCount();
+    return this._pixelsPerInterval * intervalCount + 'px';
   },
   _getBreakpointsCount: function () {
     return Math.round(this._getInvervalCount()) + 1;
   },
   _getInvervalCount: function () {
-    return this._chartDuration / this._timelineInterval;
+    return this._chartInfo.duration / this._timelineInterval;
   },
   _getBreakpoints: function (count) {
     var breakpoints = [];
-    var currBreakpointDate = new Date(this._chartJson.startTime);
+    var currBreakpointDate = new Date(this._chartInfo.startTime);
 
     for (var i = 0; i < count; i++) {
-      if (currBreakpointDate > this._chartJson.endTime) {
-        currBreakpointDate = new Date(this._chartJson.endTime);
+      if (currBreakpointDate > this._chartInfo.endTime) {
+        currBreakpointDate = new Date(this._chartInfo.endTime);
       }
       breakpoints.push(new Date(currBreakpointDate));
       currBreakpointDate.setDate(currBreakpointDate.getDate() + this._timelineInterval);
@@ -196,7 +289,7 @@ ChartGenerator.prototype = {
     var $breakpoint = $.create('div');
 
     $breakpoint.classList.add('chart__breakpoint');
-    $breakpoint.innerHTML = breakpoint.toLocaleDateString();
+    $breakpoint.innerHTML = $.formatDate(breakpoint);
 
     var $pipe = this._createBreakpointPipe();
     $breakpoint.appendChild($pipe);
@@ -208,19 +301,16 @@ ChartGenerator.prototype = {
     $pipe.classList.add('chart__breakpoint--pipe');
     return $pipe;
   },
-  _setChartWidth: function () {
+  _setChartBodyWidth: function () {
     var self = this;
 
-    var intervalCount = this._getInvervalCount();
-    var chartWidth = self._pixelsPerInterval * intervalCount + 'px';
-    var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container');
-    var $timeline = this._chart.querySelector('.chart__body--timeline');
+    var chartBodyWidth = this._getChartBodyWidth();
 
-    Array.prototype.forEach.call($blocksContainer, function ($blockContainter) {
-      $blockContainter.style.width = chartWidth;
+    this._flattenedBlocksContainers.forEach(function (blocksContainer) {
+      blocksContainer.style.width = chartBodyWidth;
     });
 
-    $timeline.style.width = chartWidth;
+    this._chartTimeline.style.width = chartBodyWidth;
   },
   _appendChartToTarget: function () {
     var $wrapper = $.create('div');
@@ -230,30 +320,42 @@ ChartGenerator.prototype = {
     this._chartTarget.appendChild($wrapper);
   },
   _setBlockPositions: function () {
-    for (var i = 0; i < this._chartJson.rows.length; i++) {
-      var row = this._chartJson.rows[i];
-      var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container')[i];
+    var self = this;
+    this._flattenedBlocks.forEach(function ($block) {
+      var $blocksContainer = self._flattenedBlocksContainers[$block.dataset.parentId];
       var containerWidth = $.compStyles($blocksContainer).width;
-
-      for (var j = 0; j < row.blocks.length; j++) {
-        var block = row.blocks[j];
-        var $block = $blocksContainer.querySelectorAll('.chart__block')[j];
-
-        var blockPositionInfo = this._getRelativePositionInfo(
-          block.startTime,
-          block.endTime,
-          containerWidth
-        );
-
-        $block.style.width = blockPositionInfo.widthPercents;
-        $block.style.left = blockPositionInfo.leftPercents;
-      }
-    }
+      var blockInfo = self._flattenedBlockInfos[$block.dataset.blockId];
+      var blockPositionInfo = self._getRelativePositionInfo(
+        blockInfo.startTime,
+        blockInfo.endTime,
+        containerWidth
+      );
+      $block.style.width = blockPositionInfo.widthPercents;
+      $block.style.left = blockPositionInfo.leftPercents;
+    });
+    // for (var i = 0; i < this._chartInfo.blocks.length; i++) {
+    //   var row = this._chartInfo.blocks[i];
+    //   var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container')[i];
+    //   var containerWidth = $.compStyles($blocksContainer).width;
+    //
+    //   for (var j = 0; j < row.blocks.length; j++) {
+    //     var block = row.blocks[j];
+    //     var $block = $blocksContainer.querySelectorAll('.chart__block')[j];
+    //
+    //     var blockPositionInfo = this._getRelativePositionInfo(
+    //       block.startTime,
+    //       block.endTime,
+    //       containerWidth
+    //     );
+    //
+    //     $block.style.width = blockPositionInfo.widthPercents;
+    //     $block.style.left = blockPositionInfo.leftPercents;
+    //   }
+    // }
   },
   _setBreakpointPositions: function () {
-    var $chartTimeline = this._chart.querySelector('.chart__body--timeline--wrapper');
-    var $breakpoints = $chartTimeline.querySelectorAll('.chart__breakpoint');
-    var containerWidth = $.compStyles($chartTimeline).width;
+    var $breakpoints = this._chartTimeline.querySelectorAll('.chart__breakpoint');
+    var containerWidth = $.compStyles(this._chartTimeline).width;
 
     for (var i = 0; i < this._breakpoints.length; i++) {
       var breakpoint = this._breakpoints[i];
@@ -270,31 +372,142 @@ ChartGenerator.prototype = {
   },
   _setBreakpointPipeSizes: function () {
     var $pipes = this._chart.querySelectorAll('.chart__breakpoint--pipe');
+    var chartBlocksHeight = parseInt($.compStyles(this._chartBody).height) -
+                            parseInt($.compStyles(this._chartTimeline).height);
 
-    var $bodyHeight = this._chart.querySelector('.chart__body');
-    var $timelineHeight = this._chart.querySelector('.chart__body--timeline');
-    var chartBlocksHeight = parseInt($.compStyles($bodyHeight).height) -
-                            parseInt($.compStyles($timelineHeight).height);
+    // Need to multiply pipe height in case of blocks height change
+    chartBlocksHeight *= 1 + this._flattenedBlocksContainers.length;
 
     Array.prototype.forEach.call($pipes, function ($pipe) {
       $pipe.style.height = chartBlocksHeight + 'px';
       $pipe.style.top = '-' + chartBlocksHeight + 'px';
     });
   },
+  _markEveryOtherVisibleRow: function () {
+    this._flattenedCaptions.forEach(function (caption) {
+      caption.classList.remove('second-cell');
+    });
+    this._flattenedBlocksContainers.forEach(function (blocksContainer) {
+      blocksContainer.classList.remove('second-cell');
+    });
+
+    var visibleCaptions = this._chartHeader.querySelectorAll('.chart__header--caption.visible');
+    var visibleBlocksContainers = this._chartBody.querySelectorAll('.chart__body--blocks-container.visible');
+
+    for (var i = 0; i < visibleCaptions.length; i++) {
+      if (i % 2 == 1) {
+        visibleCaptions[i].classList.add('second-cell');
+        visibleBlocksContainers[i].classList.add('second-cell');
+      }
+    }
+  },
   _colorizeBlocks: function () {
     var self = this;
-
-    var blocks = this._chart.querySelectorAll('.chart__block');
-    Array.prototype.forEach.call(blocks, function (block) {
-      block.style.backgroundColor = self._getNextBlockColor();
+    this._flattenedBlocks.forEach(function (block) {
+      block.style.backgroundColor = self._getCachedBlockColor(block.dataset.blockId);
     });
   },
   _createTooltips: function () {
     this._generateTooltipsArray();
     this._initializeTooltips();
   },
+  _generateTooltipsArray: function () {
+    var self = this;
+    this._flattenedBlocks.forEach(function (block) {
+      var blockInfo = self._flattenedBlockInfos[block.dataset.blockId];
+      self._blockTooltips.push(new BlockTooltip(block, blockInfo));
+    });
+    // for (var i = 0; i < this._chartInfo.blocks.length; i++) {
+    //   var row = this._chartInfo.blocks[i];
+    //   var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container--wrapper')[i];
+    //   for (var j = 0; j < row.blocks.length; j++) {
+    //     var block = row.blocks[j];
+    //     var $block = $blocksContainer.querySelectorAll('.chart__block')[j];
+    //
+    //     this._blockTooltips.push(new BlockTooltip($block, block));
+    //   }
+    // }
+  },
+  _initializeTooltips: function () {
+    this._blockTooltips.forEach(function (tooltip) {
+      tooltip.init();
+    });
+  },
   _bindEvents: function () {
     var self = this;
+
+    this._flattenedCaptions.forEach(function (caption) {
+      var $expanderArrow = caption.querySelector('.group-expander__arrow');
+      if ($expanderArrow) {
+        $expanderArrow.addEventListener('click', function () {
+          if (this.classList.contains('group-expander__arrow--collapsed')) {
+            self._expandBlock(caption.dataset.blockId);
+          } else {
+            self._collapseBlock(caption.dataset.blockId);
+          }
+        });
+      }
+    });
+  },
+  _expandBlock: function (blockId) {
+    var self = this;
+    var $caption = this._flattenedCaptions[blockId];
+    var $expanderArrow = $caption.querySelector('.group-expander__arrow');
+
+    $expanderArrow.classList.remove('group-expander__arrow--collapsed');
+    $expanderArrow.classList.add('group-expander__arrow--expanded');
+
+    var $parentBlockContainer = this._flattenedBlocksContainers[blockId];
+
+    $parentBlockContainer.classList.remove('collapsed');
+    $parentBlockContainer.classList.add('expanded');
+
+    this._flattenedBlockInfos[blockId].blocks.forEach(function (blockInfo) {
+      var $innerCaption = self._flattenedCaptions[blockInfo.id];
+      var $innerBlockContainer = self._flattenedBlocksContainers[blockInfo.id];
+      $innerCaption.classList.remove('hidden');
+      $innerCaption.classList.add('visible');
+
+      $innerBlockContainer.classList.remove('hidden');
+      $innerBlockContainer.classList.add('visible');
+    });
+
+    this._markEveryOtherVisibleRow();
+  },
+  _collapseBlock: function (blockId) {
+    var self = this;
+    var $caption = this._flattenedCaptions[blockId];
+    var $expanderArrow = $caption.querySelector('.group-expander__arrow');
+
+    $expanderArrow.classList.remove('group-expander__arrow--expanded');
+    $expanderArrow.classList.add('group-expander__arrow--collapsed');
+
+    var $parentBlockContainer = this._flattenedBlocksContainers[blockId];
+
+    $parentBlockContainer.classList.add('collapsed');
+    $parentBlockContainer.classList.remove('expanded');
+
+    this._flattenedBlockInfos[blockId].blocks.forEach(function (blockInfo) {
+      if (blockInfo.blocks && blockInfo.blocks.length > 0) {
+        self._collapseBlock(blockInfo.id);
+      }
+
+      var $innerCaption = self._flattenedCaptions[blockInfo.id];
+      var $innerBlockContainer = self._flattenedBlocksContainers[blockInfo.id];
+      $innerCaption.classList.remove('visible');
+      $innerCaption.classList.add('hidden');
+
+      $innerBlockContainer.classList.remove('visible');
+      $innerBlockContainer.classList.add('hidden');
+    });
+
+    this._markEveryOtherVisibleRow();
+  },
+  _getCachedBlockColor: function (blockId) {
+    if (!this._colorCache[blockId]) {
+      this._colorCache[blockId] = this._getNextBlockColor();
+    }
+    return this._colorCache[blockId];
   },
   _getNextBlockColor: function () {
     this._currBlockColorIndex = ++this._currBlockColorIndex < blockColors.length ?
@@ -305,35 +518,51 @@ ChartGenerator.prototype = {
   _getRandomBlockColor: function () {
     return blockColors[Math.random() * blockColors.length | 0];
   },
-  _generateTooltipsArray: function () {
-    for (var i = 0; i < this._chartJson.rows.length; i++) {
-      var row = this._chartJson.rows[i];
-      var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container--wrapper')[i];
-      for (var j = 0; j < row.blocks.length; j++) {
-        var block = row.blocks[j];
-        var $block = $blocksContainer.querySelectorAll('.chart__block')[j];
+  _getDaysBetweenDates: function (firstDate, secondDate) {
+    firstDate = firstDate || new Date(0);
+    secondDate = secondDate || new Date(0);
 
-        this._blockTooltips.push(new BlockTooltip($block, block));
+    var diff = Math.abs(firstDate.getTime() - secondDate.getTime());
+    var daysDiff = Math.ceil(diff / 1000 / 60 / 60 / 24);
+
+    return daysDiff;
+  },
+  _traverseChartInfoInOrder: function (callback) {
+    var traverse = function (blocks) {
+      blocks.forEach(function (block) {
+        callback(block);
+        if (block.blocks && block.blocks.length > 0) {
+          traverse(block.blocks);
+        }
+      });
+    }
+
+    traverse(this._chartInfo.blocks);
+  },
+  _traverseChartInfoLevelOrder: function (callback) {
+    var queue = [];
+    Array.prototype.push.apply(queue, this._chartInfo.blocks);
+
+    while (queue.length > 0) {
+      var block = queue.shift();
+      callback(block);
+      if (block.blocks && block.blocks.length > 0) {
+        Array.prototype.push.apply(queue, block.blocks);
       }
     }
-  },
-  _initializeTooltips: function () {
-    this._blockTooltips.forEach(function (tooltip) {
-      tooltip.init();
-    });
   },
   _getRelativePositionInfo: function (startTime, endTime, containerWidth) {
     startTime = startTime || new Date(0);
     endTime = endTime || new Date(0);
     containerWidth = parseInt(containerWidth) || 0;
 
-    var chartStartTime = this._chartJson.startTime;
-    var chartEndTime = this._chartJson.endTime;
+    var chartStartTime = this._chartInfo.startTime;
+    var chartEndTime = this._chartInfo.endTime;
 
     var daysToBlockStart = this._getDaysBetweenDates(chartStartTime, startTime);
     var daysToBlockEnd = this._getDaysBetweenDates(chartStartTime, endTime);
 
-    var k = 1 / this._chartDuration;
+    var k = 1 / this._chartInfo.duration;
 
     return {
       leftPx: containerWidth * k * daysToBlockStart + 'px',

@@ -20,8 +20,8 @@ BlockTooltip.prototype = {
     var tooltip = $.create('div');
     tooltip.classList.add('chart__block--tooltip');
     tooltip.innerHTML = this._blockInfo.name + ', ' +
-                        this._blockInfo.startTime.toLocaleDateString() +
-                        ' - ' + this._blockInfo.endTime.toLocaleDateString();
+                        $.formatDate(this._blockInfo.startTime) +
+                        ' - ' + $.formatDate(this._blockInfo.endTime);
 
     this._tooltipElement = tooltip;
   },
