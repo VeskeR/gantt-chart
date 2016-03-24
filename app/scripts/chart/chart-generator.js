@@ -230,12 +230,12 @@ ChartGenerator.prototype = {
 
     return $blocksContainer;
   },
-  _createBlock: function (block, blockParent) {
+  _createBlock: function (blockInfo, blockParentInfo) {
     var $block = $.create('div');
     $block.classList.add('chart__block');
-    $block.dataset.blockId = block.id;
-    $block.dataset.parentId = blockParent.id;
-    $block.classList.add(block.id === blockParent.id ? 'chart__block--own' : 'chart__block--child');
+    $block.dataset.blockId = blockInfo.id;
+    $block.dataset.parentId = blockParentInfo.id;
+    $block.classList.add(blockInfo.id === blockParentInfo.id ? 'chart__block--own' : 'chart__block--child');
     return $block;
   },
   _createTimeline: function () {
@@ -287,7 +287,7 @@ ChartGenerator.prototype = {
     var $breakpoint = $.create('div');
 
     $breakpoint.classList.add('chart__breakpoint');
-    $breakpoint.innerHTML = breakpoint.toLocaleDateString();
+    $breakpoint.innerHTML = $.formatDate(breakpoint);
 
     var $pipe = this._createBreakpointPipe();
     $breakpoint.appendChild($pipe);
