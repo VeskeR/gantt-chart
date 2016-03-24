@@ -9,6 +9,7 @@ var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
   this._chartJson = chartJson;
   this._timelineInterval = timelineInterval || 7;
 
+  this._chartInfo = null;
   this._chart = null;
   this._pixelsPerInterval = 200;
 
@@ -23,14 +24,21 @@ var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
 ChartGenerator.prototype = {
   _controller: function () {
     this._processChartJson();
-
-    this._chartDuration = this._chartDuration ||
-                          this._getDaysBetweenDates(
-                            this._chartJson.startTime,
-                            this._chartJson.endTime
-                          );
-
     this._renderChart();
+  },
+  _processChartJson: function () {
+    this._chartJson.startTime = new Date(this._chartJson.startTime);
+    this._chartJson.endTime = new Date(this._chartJson.endTime);
+    this._chartJson.blocks.forEach(function (row) {
+      row.startTime = new Date(row.startTime);
+      row.endTime = new Date(row.endTime);
+      row.blocks.forEach(function (block) {
+        block.startTime = new Date(block.startTime);
+        block.endTime = new Date(block.endTime);
+      });
+    });
+    this._chartInfo = this._generateChartInfo();
+    console.log(JSON.stringify(this._chartInfo, null, 4));
   },
   _renderChart: function (chartTarget, chartJson, timelineInterval) {
     this._chartTarget = chartTarget || this._chartTarget;
@@ -43,19 +51,45 @@ ChartGenerator.prototype = {
     this._setBlockPositions();
     this._setBreakpointPositions();
     this._setBreakpointPipeSizes();
+    this._markEveryOtherVisibleRow();
     this._colorizeBlocks();
     this._createTooltips();
     this._bindEvents();
   },
-  _processChartJson: function () {
-    this._chartJson.startTime = new Date(this._chartJson.startTime);
-    this._chartJson.endTime = new Date(this._chartJson.endTime);
-    this._chartJson.rows.forEach(function (row) {
-      row.blocks.forEach(function (block) {
-        block.startTime = new Date(block.startTime);
-        block.endTime = new Date(block.endTime);
-      });
-    });
+  _generateChartInfo: function () {
+    var self = this;
+
+    var id = 0;
+    var level = -1;
+
+    var chartStartTime = this._chartJson.startTime;
+    var chartEndTime = this._chartJson.endTime;
+
+    var processBlock = function (block) {
+      level++;
+      var processedBlock = {};
+
+      processedBlock.id = id++;
+      processedBlock.level = level;
+
+      processedBlock.name = block.name || '';
+      processedBlock.startTime = new Date(block.startTime);
+      processedBlock.endTime = new Date(block.endTime);
+      processedBlock.fromBeginning = self._getDaysBetweenDates(chartStartTime, processedBlock.startTime);
+      processedBlock.toEnd = self._getDaysBetweenDates(processedBlock.endTime, chartEndTime);
+      processedBlock.duration = self._getDaysBetweenDates(processedBlock.startTime, processedBlock.endTime);
+      processedBlock.blocks = [];
+
+      if (block.blocks && block.blocks.length > 0) {
+        for (var i = 0; i < block.blocks.length; i++) {
+          processedBlock.blocks.push(processBlock(block.blocks[i]));
+        }
+      }
+
+      level--;
+      return processedBlock;
+    };
+    return processBlock(this._chartJson);
   },
   _getDaysBetweenDates: function (firstDate, secondDate) {
     firstDate = firstDate || new Date(0);
@@ -85,7 +119,7 @@ ChartGenerator.prototype = {
     var $chartHeader = $.create('div');
     $chartHeader.classList.add('chart__header');
 
-    this._chartJson.rows.forEach(function (row) {
+    this._chartJson.blocks.forEach(function (row) {
       var $caption = self._createCaption(row);
       $chartHeader.appendChild($caption);
     });
@@ -95,9 +129,24 @@ ChartGenerator.prototype = {
   _createCaption: function (row) {
     var $caption = $.create('div');
 
-    $caption.innerHTML = row.name;
     $caption.classList.add('chart__header--caption');
     $caption.classList.add('chart__cell');
+    $caption.classList.add('visible');
+
+    var $captionGroupExpander = $.create('div');
+    $captionGroupExpander.classList.add('group-expander');
+
+    var $arrow = $.create('div');
+    $arrow.classList.add('group-expander__arrow');
+    $arrow.classList.add('group-expander__arrow--closed');
+    $captionGroupExpander.appendChild($arrow);
+
+    var $captionText = $.create('p');
+    $captionText.innerHTML = row.name;
+    $captionText.classList.add('chart__header--caption--text');
+
+    $caption.appendChild($captionGroupExpander);
+    $caption.appendChild($captionText);
 
     return $caption;
   },
@@ -107,7 +156,7 @@ ChartGenerator.prototype = {
     var $chartBody = $.create('div');
     $chartBody.classList.add('chart__body');
 
-    this._chartJson.rows.forEach(function (row) {
+    this._chartJson.blocks.forEach(function (row) {
       var $blocksContainer = self._createBlocksContainer(row);
       $chartBody.appendChild($blocksContainer);
     });
@@ -122,6 +171,7 @@ ChartGenerator.prototype = {
 
     $blocksContainer.classList.add('chart__body--blocks-container');
     $blocksContainer.classList.add('chart__cell');
+    $blocksContainer.classList.add('visible');
 
     var $blocksContainerWrapper = this._createBlocksContainerWrapper(row);
     $blocksContainer.appendChild($blocksContainerWrapper);
@@ -176,7 +226,7 @@ ChartGenerator.prototype = {
     return Math.round(this._getInvervalCount()) + 1;
   },
   _getInvervalCount: function () {
-    return this._chartDuration / this._timelineInterval;
+    return this._chartInfo.duration / this._timelineInterval;
   },
   _getBreakpoints: function (count) {
     var breakpoints = [];
@@ -230,8 +280,8 @@ ChartGenerator.prototype = {
     this._chartTarget.appendChild($wrapper);
   },
   _setBlockPositions: function () {
-    for (var i = 0; i < this._chartJson.rows.length; i++) {
-      var row = this._chartJson.rows[i];
+    for (var i = 0; i < this._chartJson.blocks.length; i++) {
+      var row = this._chartJson.blocks[i];
       var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container')[i];
       var containerWidth = $.compStyles($blocksContainer).width;
 
@@ -276,10 +326,24 @@ ChartGenerator.prototype = {
     var chartBlocksHeight = parseInt($.compStyles($bodyHeight).height) -
                             parseInt($.compStyles($timelineHeight).height);
 
+    // Need to multiply pipe height in case of blocks height change
+    chartBlocksHeight *= 4;
+
     Array.prototype.forEach.call($pipes, function ($pipe) {
       $pipe.style.height = chartBlocksHeight + 'px';
       $pipe.style.top = '-' + chartBlocksHeight + 'px';
     });
+  },
+  _markEveryOtherVisibleRow: function () {
+    var visibleCaptions = this._chart.querySelectorAll('.chart__header--caption.visible');
+    var visibleBlocksContainers = this._chart.querySelectorAll('.chart__body--blocks-container.visible');
+
+    for (var i = 0; i < visibleCaptions.length; i++) {
+      if (i % 2 == 1) {
+        visibleCaptions[i].classList.add('second-cell');
+        visibleBlocksContainers[i].classList.add('second-cell');
+      }
+    }
   },
   _colorizeBlocks: function () {
     var self = this;
@@ -306,8 +370,8 @@ ChartGenerator.prototype = {
     return blockColors[Math.random() * blockColors.length | 0];
   },
   _generateTooltipsArray: function () {
-    for (var i = 0; i < this._chartJson.rows.length; i++) {
-      var row = this._chartJson.rows[i];
+    for (var i = 0; i < this._chartJson.blocks.length; i++) {
+      var row = this._chartJson.blocks[i];
       var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container--wrapper')[i];
       for (var j = 0; j < row.blocks.length; j++) {
         var block = row.blocks[j];
@@ -333,7 +397,7 @@ ChartGenerator.prototype = {
     var daysToBlockStart = this._getDaysBetweenDates(chartStartTime, startTime);
     var daysToBlockEnd = this._getDaysBetweenDates(chartStartTime, endTime);
 
-    var k = 1 / this._chartDuration;
+    var k = 1 / this._chartInfo.duration;
 
     return {
       leftPx: containerWidth * k * daysToBlockStart + 'px',

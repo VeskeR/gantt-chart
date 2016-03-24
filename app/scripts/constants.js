@@ -4,9 +4,11 @@ var constants = {
   chartJsonExample: {
     startTime: '2016-3-1',
     endTime: '2016-3-31',
-    rows: [
+    blocks: [
       {
         name: 'Requirements',
+        startTime: '2016-3-1',
+        endTime: '2016-3-4',
         blocks: [
           {
             name: 'Review',
@@ -17,6 +19,8 @@ var constants = {
       },
       {
         name: 'Setup',
+        startTime: '2016-3-4',
+        endTime: '2016-3-8',
         blocks: [
           {
             name: 'Setup',
@@ -27,6 +31,8 @@ var constants = {
       },
       {
         name: 'Development',
+        startTime: '2016-3-8',
+        endTime: '2016-3-16',
         blocks: [
           {
             name: 'Coding',
@@ -37,6 +43,8 @@ var constants = {
       },
       {
         name: 'Testing',
+        startTime: '2016-3-16',
+        endTime: '2016-3-20',
         blocks: [
           {
             name: 'Integration Tests',
@@ -52,6 +60,8 @@ var constants = {
       },
       {
         name: 'Deployment',
+        startTime: '2016-3-20',
+        endTime: '2016-3-25',
         blocks: [
           {
             name: 'Setup',
@@ -67,6 +77,8 @@ var constants = {
       },
       {
         name: 'Training',
+        startTime: '2016-3-24',
+        endTime: '2016-3-26',
         blocks: [
           {
             name: 'Training',
@@ -77,6 +89,8 @@ var constants = {
       },
       {
         name: 'Support',
+        startTime: '2016-3-26',
+        endTime: '2016-3-31',
         blocks: [
           {
             name: 'Support',
@@ -87,6 +101,8 @@ var constants = {
       },
       {
         name: 'Project Management',
+        startTime: '2016-3-1',
+        endTime: '2016-3-31',
         blocks: [
           {
             name: 'Project Management',
