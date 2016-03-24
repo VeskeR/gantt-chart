@@ -176,6 +176,7 @@
             line-height: $chart-breakpoint-height;
             font-size: .8em;
             transform: translateX(-50%);
+            white-space: nowrap;
 
             &--pipe {
               position: absolute;

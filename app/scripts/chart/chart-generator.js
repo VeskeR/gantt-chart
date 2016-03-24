@@ -25,6 +25,7 @@ var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
   this._breakpoints = [];
   this._blockTooltips = [];
 
+  this._colorCache = {};
   this._currBlockColorIndex = Math.random() * blockColors.length | 0;
 
   this._controller();
@@ -403,7 +404,7 @@ ChartGenerator.prototype = {
   _colorizeBlocks: function () {
     var self = this;
     this._flattenedBlocks.forEach(function (block) {
-      block.style.backgroundColor = self._getNextBlockColor();
+      block.style.backgroundColor = self._getCachedBlockColor(block.dataset.blockId);
     });
   },
   _createTooltips: function () {
@@ -487,6 +488,10 @@ ChartGenerator.prototype = {
     $parentBlockContainer.classList.remove('expanded');
 
     this._flattenedBlockInfos[blockId].blocks.forEach(function (blockInfo) {
+      if (blockInfo.blocks && blockInfo.blocks.length > 0) {
+        self._collapseBlock(blockInfo.id);
+      }
+
       var $innerCaption = self._flattenedCaptions[blockInfo.id];
       var $innerBlockContainer = self._flattenedBlocksContainers[blockInfo.id];
       $innerCaption.classList.remove('visible');
@@ -497,6 +502,12 @@ ChartGenerator.prototype = {
     });
 
     this._markEveryOtherVisibleRow();
+  },
+  _getCachedBlockColor: function (blockId) {
+    if (!this._colorCache[blockId]) {
+      this._colorCache[blockId] = this._getNextBlockColor();
+    }
+    return this._colorCache[blockId];
   },
   _getNextBlockColor: function () {
     this._currBlockColorIndex = ++this._currBlockColorIndex < blockColors.length ?
