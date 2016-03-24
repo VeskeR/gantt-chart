@@ -65,7 +65,7 @@
               transform: translateX(-50%) translateY(-50%) rotate(-45deg);
             }
 
-            &--closed {
+            &--collapsed {
               &::after {
                 border-top-color: transparent;
                 border-right-color: transparent;
@@ -103,7 +103,7 @@
         padding: 0 2em 0 3em;
 
         &-group {
-          &.visible {
+          &.collapsed {
             .chart__block {
               &--own {
                 display: none;
@@ -115,7 +115,7 @@
             }
           }
 
-          &.hidden {
+          &.expanded {
             .chart__block {
               &--own {
                 display: block;

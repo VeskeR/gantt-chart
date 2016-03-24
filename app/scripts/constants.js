@@ -36,13 +36,30 @@ var constants = {
       },
       {
         name: 'Testing',
-        startTime: '2016-3-16',
+        startTime: '2016-3-14',
         endTime: '2016-3-20',
         blocks: [
           {
+            name: 'Unit Tests',
+            startTime: '2016-3-14',
+            endTime: '2016-3-16'
+          },
+          {
             name: 'Integration Tests',
             startTime: '2016-3-16',
-            endTime: '2016-3-18'
+            endTime: '2016-3-18',
+            blocks: [
+              {
+                name: 'Bottom Up Testing',
+                startTime: '2016-3-16',
+                endTime: '2016-3-17'
+              },
+              {
+                name: 'Top Down Testing',
+                startTime: '2016-3-17',
+                endTime: '2016-3-18'
+              }
+            ]
           },
           {
             name: 'Customer Tests',

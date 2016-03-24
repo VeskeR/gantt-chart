@@ -149,7 +149,7 @@ ChartGenerator.prototype = {
 
       var $arrow = $.create('div');
       $arrow.classList.add('group-expander__arrow');
-      $arrow.classList.add('group-expander__arrow--closed');
+      $arrow.classList.add('group-expander__arrow--collapsed');
       $captionGroupExpander.appendChild($arrow);
 
       $caption.appendChild($captionGroupExpander);
@@ -204,6 +204,7 @@ ChartGenerator.prototype = {
 
     $blocksContainer.classList.add('chart__body--blocks-container');
     $blocksContainer.classList.add('chart__cell');
+    $blocksContainer.classList.add('collapsed');
     $blocksContainer.classList.add(block.level < 2 ? 'visible' : 'hidden');
     if (isGroup) {
       $blocksContainer.classList.add('chart__body--blocks-container-group');
@@ -352,9 +353,8 @@ ChartGenerator.prototype = {
     // }
   },
   _setBreakpointPositions: function () {
-    var $chartTimeline = this._chart.querySelector('.chart__body--timeline--wrapper');
-    var $breakpoints = $chartTimeline.querySelectorAll('.chart__breakpoint');
-    var containerWidth = $.compStyles($chartTimeline).width;
+    var $breakpoints = this._chartTimeline.querySelectorAll('.chart__breakpoint');
+    var containerWidth = $.compStyles(this._chartTimeline).width;
 
     for (var i = 0; i < this._breakpoints.length; i++) {
       var breakpoint = this._breakpoints[i];
@@ -371,14 +371,11 @@ ChartGenerator.prototype = {
   },
   _setBreakpointPipeSizes: function () {
     var $pipes = this._chart.querySelectorAll('.chart__breakpoint--pipe');
-
-    var $bodyHeight = this._chart.querySelector('.chart__body');
-    var $timelineHeight = this._chart.querySelector('.chart__body--timeline');
-    var chartBlocksHeight = parseInt($.compStyles($bodyHeight).height) -
-                            parseInt($.compStyles($timelineHeight).height);
+    var chartBlocksHeight = parseInt($.compStyles(this._chartBody).height) -
+                            parseInt($.compStyles(this._chartTimeline).height);
 
     // Need to multiply pipe height in case of blocks height change
-    chartBlocksHeight *= 4;
+    chartBlocksHeight *= 1 + this._flattenedBlocksContainers.length;
 
     Array.prototype.forEach.call($pipes, function ($pipe) {
       $pipe.style.height = chartBlocksHeight + 'px';
@@ -386,6 +383,13 @@ ChartGenerator.prototype = {
     });
   },
   _markEveryOtherVisibleRow: function () {
+    this._flattenedCaptions.forEach(function (caption) {
+      caption.classList.remove('second-cell');
+    });
+    this._flattenedBlocksContainers.forEach(function (blocksContainer) {
+      blocksContainer.classList.remove('second-cell');
+    });
+
     var visibleCaptions = this._chartHeader.querySelectorAll('.chart__header--caption.visible');
     var visibleBlocksContainers = this._chartBody.querySelectorAll('.chart__body--blocks-container.visible');
 
@@ -430,6 +434,69 @@ ChartGenerator.prototype = {
   },
   _bindEvents: function () {
     var self = this;
+
+    this._flattenedCaptions.forEach(function (caption) {
+      var $expanderArrow = caption.querySelector('.group-expander__arrow');
+      if ($expanderArrow) {
+        $expanderArrow.addEventListener('click', function () {
+          if (this.classList.contains('group-expander__arrow--collapsed')) {
+            self._expandBlock(caption.dataset.blockId);
+          } else {
+            self._collapseBlock(caption.dataset.blockId);
+          }
+        });
+      }
+    });
+  },
+  _expandBlock: function (blockId) {
+    var self = this;
+    var $caption = this._flattenedCaptions[blockId];
+    var $expanderArrow = $caption.querySelector('.group-expander__arrow');
+
+    $expanderArrow.classList.remove('group-expander__arrow--collapsed');
+    $expanderArrow.classList.add('group-expander__arrow--expanded');
+
+    var $parentBlockContainer = this._flattenedBlocksContainers[blockId];
+
+    $parentBlockContainer.classList.remove('collapsed');
+    $parentBlockContainer.classList.add('expanded');
+
+    this._flattenedBlockInfos[blockId].blocks.forEach(function (blockInfo) {
+      var $innerCaption = self._flattenedCaptions[blockInfo.id];
+      var $innerBlockContainer = self._flattenedBlocksContainers[blockInfo.id];
+      $innerCaption.classList.remove('hidden');
+      $innerCaption.classList.add('visible');
+
+      $innerBlockContainer.classList.remove('hidden');
+      $innerBlockContainer.classList.add('visible');
+    });
+
+    this._markEveryOtherVisibleRow();
+  },
+  _collapseBlock: function (blockId) {
+    var self = this;
+    var $caption = this._flattenedCaptions[blockId];
+    var $expanderArrow = $caption.querySelector('.group-expander__arrow');
+
+    $expanderArrow.classList.remove('group-expander__arrow--expanded');
+    $expanderArrow.classList.add('group-expander__arrow--collapsed');
+
+    var $parentBlockContainer = this._flattenedBlocksContainers[blockId];
+
+    $parentBlockContainer.classList.add('collapsed');
+    $parentBlockContainer.classList.remove('expanded');
+
+    this._flattenedBlockInfos[blockId].blocks.forEach(function (blockInfo) {
+      var $innerCaption = self._flattenedCaptions[blockInfo.id];
+      var $innerBlockContainer = self._flattenedBlocksContainers[blockInfo.id];
+      $innerCaption.classList.remove('visible');
+      $innerCaption.classList.add('hidden');
+
+      $innerBlockContainer.classList.remove('visible');
+      $innerBlockContainer.classList.add('hidden');
+    });
+
+    this._markEveryOtherVisibleRow();
   },
   _getNextBlockColor: function () {
     this._currBlockColorIndex = ++this._currBlockColorIndex < blockColors.length ?
