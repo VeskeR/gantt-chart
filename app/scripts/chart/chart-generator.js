@@ -4,10 +4,11 @@ var $ = require('../helper');
 var BlockTooltip = require('./block-tooltip');
 var blockColors = require('../constants').blockColors;
 
-var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
-  this._chartTarget = chartTarget;
-  this._chartJson = chartJson;
-  this._timelineInterval = timelineInterval || 7;
+var ChartGenerator = function (settings) {
+  this._chartTarget = settings.target;
+  this._chartJson = settings.json;
+  this._timelineInterval = settings.timelineInterval || 7;
+  this._chartScale = settings.scale || 1;
 
   this._chartInfo = null;
   this._chart = null;
@@ -15,7 +16,13 @@ var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
   this._chartBody = null;
   this._chartTimeline = null;
 
-  this._pixelsPerInterval = 200;
+  this._minTimelineInterval = 1;
+  this._maxTimelineInterval = 30;
+
+  this._pixelsPerScale = 100;
+
+  this._minChartScale = 1;
+  this._maxChartScale = 1000;
 
   this._flattenedBlockInfos = [];
   this._flattenedCaptions = [];
@@ -32,6 +39,40 @@ var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
 }
 
 ChartGenerator.prototype = {
+  changeScale: function (newScale) {
+    if (newScale < this._minChartScale) {
+      newScale = this._minChartScale;
+    } else if (newScale > this._maxChartScale) {
+      newScale = this._maxChartScale;
+    }
+
+    this._chartScale = newScale;
+
+    // We need to recalculate elements widths
+    // Since blocks and timeline breakpoints uses percents to position themselves
+    // we do not need to recalculate them too
+    this._setChartBodyElementsWidth();
+  },
+  changeTimelineInterval: function (newInterval) {
+    if (newInterval < this._minTimelineInterval) {
+      newInterval = this._minTimelineInterval;
+    } else if (newInterval > this._maxTimelineInterval) {
+      newInterval = this._maxTimelineInterval;
+    }
+
+    this._timelineInterval = newInterval;
+
+    this._destroyTimeline();
+
+    var $newTimeline = this._createTimeline();
+    this._chartTimeline = $newTimeline;
+    this._chartBody.appendChild($newTimeline);
+
+    this._setChartBodyElementsWidth();
+    
+    this._setBreakpointPositions();
+    this._setBreakpointPipeSizes();
+  },
   _controller: function () {
     var self = this;
 
@@ -262,6 +303,13 @@ ChartGenerator.prototype = {
 
     return $timeline;
   },
+  _destroyTimeline: function () {
+    if (this._chartTimeline) {
+      this._chartBody.removeChild(this._chartTimeline);
+    }
+    this._chartTimeline = null;
+    this._breakpoints = [];
+  },
   _getBreakpointsCount: function () {
     return Math.round(this._getInvervalCount()) + 1;
   },
@@ -301,7 +349,7 @@ ChartGenerator.prototype = {
   _setChartBodyElementsWidth: function () {
     var self = this;
 
-    var chartBodyWidth = this._getChartBodyWidth();
+    var chartBodyWidth = this._getChartBodyElementsWidth();
 
     this._flattenedBlocksContainers.forEach(function (blocksContainer) {
       blocksContainer.style.width = chartBodyWidth;
@@ -309,13 +357,13 @@ ChartGenerator.prototype = {
 
     this._chartTimeline.style.width = chartBodyWidth;
   },
-  _getChartBodyWidth: function () {
+  _getChartBodyElementsWidth: function () {
     var intervalCount = this._getInvervalCount();
-    return this._pixelsPerInterval * intervalCount + 'px';
+    return this._pixelsPerScale * this._chartScale + 'px';
   },
   _appendChartToTarget: function () {
     var $wrapper = $.create('div');
-    $wrapper.classList.add('wrapper');
+    $wrapper.classList.add('chart-wrapper');
     $wrapper.appendChild(this._chart);
 
     this._chartTarget.appendChild($wrapper);
