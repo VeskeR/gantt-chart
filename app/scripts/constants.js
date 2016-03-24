@@ -2,103 +2,101 @@
 
 var constants = {
   chartJsonExample: {
-    startTime: '2016-3-1',
-    endTime: '2016-3-31',
+    startTime: '2016-1-5',
+    endTime: '2016-2-16',
     blocks: [
       {
         name: 'Requirements',
-        startTime: '2016-3-1',
-        endTime: '2016-3-4',
+        startTime: '2016-1-8',
+        endTime: '2016-1-18',
         blocks: [
           {
-            name: 'Review',
-            startTime: '2016-3-1',
-            endTime: '2016-3-4'
+            name: 'Request Open',
+            startTime: '2016-1-8',
+            endTime: '2016-1-12'
+          },
+          {
+            name: 'Under Review',
+            startTime: '2016-1-12',
+            endTime: '2016-1-16'
+          },
+          {
+            name: 'Selected For Development',
+            startTime: '2016-1-16',
+            endTime: '2016-1-18'
           }
         ]
       },
       {
         name: 'Setup',
-        startTime: '2016-3-4',
-        endTime: '2016-3-8'
+        startTime: '2016-1-16',
+        endTime: '2016-1-20'
       },
       {
         name: 'Development',
-        startTime: '2016-3-8',
-        endTime: '2016-3-16',
+        startTime: '2016-1-16',
+        endTime: '2016-1-26',
         blocks: [
           {
             name: 'Coding',
-            startTime: '2016-3-8',
-            endTime: '2016-3-16'
+            startTime: '2016-1-16',
+            endTime: '2016-1-26'
           }
         ]
       },
       {
         name: 'Testing',
-        startTime: '2016-3-14',
-        endTime: '2016-3-20',
+        startTime: '2016-1-26',
+        endTime: '2016-1-31',
         blocks: [
           {
-            name: 'Unit Tests',
-            startTime: '2016-3-14',
-            endTime: '2016-3-16'
-          },
-          {
             name: 'Integration Tests',
-            startTime: '2016-3-16',
-            endTime: '2016-3-18',
-            blocks: [
-              {
-                name: 'Bottom Up Testing',
-                startTime: '2016-3-16',
-                endTime: '2016-3-17'
-              },
-              {
-                name: 'Top Down Testing',
-                startTime: '2016-3-17',
-                endTime: '2016-3-18'
-              }
-            ]
+            startTime: '2016-1-26',
+            endTime: '2016-1-28'
           },
           {
             name: 'Customer Tests',
-            startTime: '2016-3-18',
-            endTime: '2016-3-20'
+            startTime: '2016-1-28',
+            endTime: '2016-1-31'
           }
         ]
       },
       {
         name: 'Deployment',
-        startTime: '2016-3-20',
-        endTime: '2016-3-25',
+        startTime: '2016-1-31',
+        endTime: '2016-2-4',
         blocks: [
           {
             name: 'Setup',
-            startTime: '2016-3-20',
-            endTime: '2016-3-24'
+            startTime: '2016-1-31',
+            endTime: '2016-2-2'
+          },
+          {
+            name: 'Demo Launch',
+            startTime: '2016-2-2',
+            endTime: '2016-2-3'
           },
           {
             name: 'Go-Live!',
-            startTime: '2016-3-24',
-            endTime: '2016-3-25'
+            startTime: '2016-2-3',
+            endTime: '2016-2-4'
           }
         ]
       },
       {
         name: 'Training',
-        startTime: '2016-3-24',
-        endTime: '2016-3-26'
+        startTime: '2016-2-3',
+        endTime: '2016-2-6'
       },
       {
         name: 'Support',
-        startTime: '2016-3-26',
-        endTime: '2016-3-31'
+        startTime: '2016-2-6',
+        endTime: '2016-2-16'
       },
       {
         name: 'Project Management',
-        startTime: '2016-3-1',
-        endTime: '2016-3-31'
+        startTime: '2016-1-8',
+        endTime: '2016-2-16'
       }
     ]
   },
