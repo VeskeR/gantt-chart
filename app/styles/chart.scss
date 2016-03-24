@@ -63,6 +63,7 @@
               border: .4em solid $grey-5;
               transform-origin: center;
               transform: translateX(-50%) translateY(-50%) rotate(-45deg);
+              transition: $chart-expander-transition;
             }
 
             &--collapsed {
@@ -106,11 +107,15 @@
           &.collapsed {
             .chart__block {
               &--own {
-                display: none;
+                z-index: 1;
+                opacity: 0;
+                // display: none;
               }
 
               &--child {
-                display: block;
+                z-index: 2;
+                opacity: 1;
+                // display: block;
               }
             }
           }
@@ -118,11 +123,15 @@
           &.expanded {
             .chart__block {
               &--own {
-                display: block;
+                z-index: 2;
+                opacity: 1;
+                // display: block;
               }
 
               &--child {
-                display: none;
+                z-index: 1;
+                opacity: 0;
+                // display: none;
               }
             }
           }
@@ -140,9 +149,10 @@
             height: 100%;
             text-align: center;
             box-shadow: $material-1;
+            transition: opacity $chart-block-transition;
 
             &--tooltip {
-              z-index: 2;
+              z-index: 9;
               display: none;
               position: absolute;
               top: -80%;
@@ -192,19 +202,24 @@
     }
 
     &__cell {
-      height: $chart-cell-height;
+      display: flex;
       line-height: $chart-cell-height;
       position: relative;
       color: $grey-5;
       vertical-align: middle;
-      border-bottom: 1px solid $grey-2;
-
-      &.visible {
-        display: flex;
-      }
+      border-bottom: none;
 
       &.hidden {
-        display: none;
+        opacity: 0;
+        height: 0;
+        transition: $chart-cell-transition;
+      }
+
+      &.visible {
+        border-bottom: 1px solid $grey-2;
+        opacity: 1;
+        transition: $chart-cell-transition;
+        height: $chart-cell-height;
       }
 
       &.second-cell {

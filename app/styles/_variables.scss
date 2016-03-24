@@ -19,6 +19,11 @@ $grey-6: hsl(0, 0%, 20%);
 $grey-7: hsl(0, 0%, 5%);
 $black: #000;
 
+// Transitions
+$chart-cell-transition: .3s ease-out;
+$chart-expander-transition: $chart-cell-transition;
+$chart-block-transition: $chart-cell-transition;
+
 // Material box shadows
 $material-1: 0px 1px 4px rgba($black, 0.3);
 $material-2: 0px 3px 8px rgba($black, 0.3);

@@ -78,15 +78,26 @@ ChartGenerator.prototype = {
     this._chartInfo = processBlock(this._chartJson);
   },
   _renderChart: function () {
+    // Creation of chart layout
     this._createChart();
-    this._setChartBodyWidth();
+    this._setChartBodyElementsWidth();
+
+    // Appending created chart layout to specified target in DOM
     this._appendChartToTarget();
+
+    // Configuring chart element positions and sizes
     this._setBlockPositions();
     this._setBreakpointPositions();
     this._setBreakpointPipeSizes();
+
+    // Apply styling
     this._markEveryOtherVisibleRow();
     this._colorizeBlocks();
+
+    // Creating tooltips for blocks
     this._createTooltips();
+
+    // Adding event listeners to response user input
     this._bindEvents();
   },
   _createChart: function () {
@@ -127,11 +138,6 @@ ChartGenerator.prototype = {
     };
 
     buildCaptions(this._chartInfo.blocks);
-
-    // this._chartInfo.blocks.forEach(function (row) {
-    //   var $caption = self._createCaption(row);
-    //   $chartHeader.appendChild($caption);
-    // });
 
     return $chartHeader;
   },
@@ -186,11 +192,6 @@ ChartGenerator.prototype = {
     };
 
     buildBlocksContainers(this._chartInfo.blocks);
-
-    // this._chartInfo.blocks.forEach(function (row) {
-    //   var $blocksContainer = self._createBlocksContainer(row);
-    //   $chartBody.appendChild($blocksContainer);
-    // });
 
     var $timeline = this._createTimeline();
     this._chartTimeline = $timeline;
@@ -261,10 +262,6 @@ ChartGenerator.prototype = {
 
     return $timeline;
   },
-  _getChartBodyWidth: function () {
-    var intervalCount = this._getInvervalCount();
-    return this._pixelsPerInterval * intervalCount + 'px';
-  },
   _getBreakpointsCount: function () {
     return Math.round(this._getInvervalCount()) + 1;
   },
@@ -301,7 +298,7 @@ ChartGenerator.prototype = {
     $pipe.classList.add('chart__breakpoint--pipe');
     return $pipe;
   },
-  _setChartBodyWidth: function () {
+  _setChartBodyElementsWidth: function () {
     var self = this;
 
     var chartBodyWidth = this._getChartBodyWidth();
@@ -311,6 +308,10 @@ ChartGenerator.prototype = {
     });
 
     this._chartTimeline.style.width = chartBodyWidth;
+  },
+  _getChartBodyWidth: function () {
+    var intervalCount = this._getInvervalCount();
+    return this._pixelsPerInterval * intervalCount + 'px';
   },
   _appendChartToTarget: function () {
     var $wrapper = $.create('div');
@@ -333,25 +334,6 @@ ChartGenerator.prototype = {
       $block.style.width = blockPositionInfo.widthPercents;
       $block.style.left = blockPositionInfo.leftPercents;
     });
-    // for (var i = 0; i < this._chartInfo.blocks.length; i++) {
-    //   var row = this._chartInfo.blocks[i];
-    //   var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container')[i];
-    //   var containerWidth = $.compStyles($blocksContainer).width;
-    //
-    //   for (var j = 0; j < row.blocks.length; j++) {
-    //     var block = row.blocks[j];
-    //     var $block = $blocksContainer.querySelectorAll('.chart__block')[j];
-    //
-    //     var blockPositionInfo = this._getRelativePositionInfo(
-    //       block.startTime,
-    //       block.endTime,
-    //       containerWidth
-    //     );
-    //
-    //     $block.style.width = blockPositionInfo.widthPercents;
-    //     $block.style.left = blockPositionInfo.leftPercents;
-    //   }
-    // }
   },
   _setBreakpointPositions: function () {
     var $breakpoints = this._chartTimeline.querySelectorAll('.chart__breakpoint');
@@ -417,16 +399,6 @@ ChartGenerator.prototype = {
       var blockInfo = self._flattenedBlockInfos[block.dataset.blockId];
       self._blockTooltips.push(new BlockTooltip(block, blockInfo));
     });
-    // for (var i = 0; i < this._chartInfo.blocks.length; i++) {
-    //   var row = this._chartInfo.blocks[i];
-    //   var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container--wrapper')[i];
-    //   for (var j = 0; j < row.blocks.length; j++) {
-    //     var block = row.blocks[j];
-    //     var $block = $blocksContainer.querySelectorAll('.chart__block')[j];
-    //
-    //     this._blockTooltips.push(new BlockTooltip($block, block));
-    //   }
-    // }
   },
   _initializeTooltips: function () {
     this._blockTooltips.forEach(function (tooltip) {
