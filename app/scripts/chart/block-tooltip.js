@@ -13,6 +13,7 @@ BlockTooltip.prototype = {
     this._blockElement = blockElement || this._blockElement;
     this._blockInfo = blockInfo || this._blockInfo;
     this._createElement();
+    this._setPosition();
     this._appendToBlock();
     this._bind();
   },
@@ -31,17 +32,18 @@ BlockTooltip.prototype = {
   _bind: function () {
     var self = this;
     this._blockElement.addEventListener('mouseover', function (e) {
-      self._setPosition(e.clientX);
       self._show();
     });
     this._blockElement.addEventListener('mouseout', function () {
       self._hide();
     });
   },
-  _setPosition: function (clientX) {
-    var windowWidth = window.innerWidth;
-    this._tooltipElement.style.right = null;
-    this._tooltipElement.style.left = '10%';
+  _setPosition: function () {
+    if (this._blockElement.dataset.parentId == 1) {
+      this._tooltipElement.style.bottom = '-80%';
+    } else {
+      this._tooltipElement.style.top = '-80%';
+    }
   },
   _show: function () {
     this._tooltipElement.style.display = 'block';
