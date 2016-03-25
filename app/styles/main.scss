@@ -89,16 +89,16 @@ body {
               padding: .7rem;
               border: 0;
               outline: 0;
-              background-color: hsl(0, 0%, 97%);              
+              background-color: $grey-1;
               font-size: 1.2rem;
               cursor: pointer;
 
               &:hover {
-                background-color: $grey-1;
+                background-color: hsl(0, 0%, 90%);
               }
 
               &:active {
-                background-color: hsl(0, 0%, 90%);
+                background-color: hsl(0, 0%, 85%);
               }
             }
 
@@ -113,8 +113,8 @@ body {
 
               &::-webkit-slider-thumb {
                 background-color: $grey-5;
-                height: 2rem;
-                width: 3rem;
+                height: 1.5rem;
+                width: 2rem;
                 border-radius: 2rem;
                 cursor: pointer;
                 -webkit-appearance: none;
@@ -122,8 +122,8 @@ body {
 
               &::-moz-range-thumb {
                 background-color: $grey-5;
-                height: 2rem;
-                width: 3rem;
+                height: 1.5rem;
+                width: 2em;
                 border-radius: 2rem;
                 cursor: pointer;
                 cursor: pointer;
@@ -131,7 +131,7 @@ body {
 
               &::-webkit-slider-runnable-track {
                 width: 100%;
-                height: 2rem;
+                height: 1.5rem;
                 box-shadow: $material-2;
                 background: $white;
                 border-radius: 2em;
@@ -140,7 +140,7 @@ body {
 
               &::-moz-range-track {
                 width: 100%;
-                height: 2rem;
+                height: 1.5rem;
                 box-shadow: $material-2;
                 background: $white;
                 border-radius: 2em;
@@ -164,10 +164,6 @@ body {
       @import 'chart';
     }
   }
-
-  &__footer {
-
-  }
 }
 
 ::-webkit-scrollbar {
@@ -175,13 +171,7 @@ body {
   width: 6px;
 }
 
-::-webkit-scrollbar-track {
-    // -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-    // border-radius: 4px;
-}
-
 ::-webkit-scrollbar-thumb {
     border-radius: 6px;
     background-color: $grey-4;
-    // -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
 }
