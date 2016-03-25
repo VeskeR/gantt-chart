@@ -40,10 +40,10 @@ Controller.prototype = {
     this._scaleSlider = $.first(".controls__panel-scale input[type='range']");
     this._scaleSliderText = $.first(".controls__panel-scale .controls__panel--slider-text");
     this._scaleTextInput = $.first(".controls__panel-scale input[type='text']");
-    this._scaleButton = $.first(".controls__panel-scale input[type='button']");
+    this._scaleButton = $.first(".controls__panel-scale button");
 
     this._intervalTextInput = $.first(".controls__panel-timeline-interval input[type='text']")
-    this._intervalButton = $.first(".controls__panel-timeline-interval input[type='button']");
+    this._intervalButton = $.first(".controls__panel-timeline-interval button");
   },
   _bindEvents: function () {
     var self = this;
@@ -77,7 +77,7 @@ Controller.prototype = {
   _changeInterval: function (intervalCount) {
     intervalCount = parseInt(intervalCount) || 1;
 
-    this._intervalTextInput.innerHTML = intervalCount;
+    this._intervalTextInput.value = intervalCount;
 
     this._chart.changeTimelineInterval(intervalCount);
   }

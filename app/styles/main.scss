@@ -38,7 +38,7 @@ body {
     box-shadow: $material-1;
 
     &--chart-controls {
-      width: 80%;
+      width: 90%;
       margin: 2rem 0;
       padding: 2rem 0;
       box-shadow: $material-1;
@@ -83,13 +83,13 @@ body {
             }
 
             &-button {
-              box-shadow: $material-1;
+              // box-shadow: $material-1;
               width: 10rem;
               height: 3rem;
               padding: .7rem;
               border: 0;
               outline: 0;
-              background-color: $white;
+              background-color: hsl(0, 0%, 97%);              
               font-size: 1.2rem;
               cursor: pointer;
 
