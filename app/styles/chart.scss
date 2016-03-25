@@ -153,6 +153,16 @@
             text-align: center;
             box-shadow: $material-1;
             transition: opacity $chart-block-transition;
+            vertical-align: middle;
+            text-align: center;
+
+            &--text {
+              margin: 0 1em;
+              color: $black;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
           }
         }
       }

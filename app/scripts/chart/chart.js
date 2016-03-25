@@ -280,6 +280,13 @@ Chart.prototype = {
     $block.dataset.blockId = blockInfo.id;
     $block.dataset.parentId = blockParentInfo.id;
     $block.classList.add(blockInfo.id === blockParentInfo.id ? 'chart__block--own' : 'chart__block--child');
+
+    var $blockText = $.create('p');
+    $blockText.classList.add('chart__block--text');
+    $blockText.innerHTML = blockInfo.name;
+
+    $block.appendChild($blockText);
+
     return $block;
   },
   _createTimeline: function () {
