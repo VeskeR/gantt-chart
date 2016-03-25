@@ -98,6 +98,7 @@
       max-width: 100%;
       overflow-x: auto;
       overflow-y: hidden;
+      position: relative;
 
       &--blocks-container {
         align-items: center;
@@ -152,22 +153,6 @@
             text-align: center;
             box-shadow: $material-1;
             transition: opacity $chart-block-transition;
-
-            &--tooltip {
-              z-index: 9;
-              display: none;
-              position: absolute;
-              top: -80%;
-              height: $chart-block-tooltip-height;
-              line-height: $chart-block-tooltip-height;
-              padding: 0 .5em;
-              text-align: center;
-              font-size: 1em;
-              color: $grey-5;
-              background-color: $white;
-              box-shadow: $material-4;
-              white-space: nowrap;
-            }
           }
         }
       }
@@ -202,6 +187,22 @@
           }
         }
       }
+
+      &--tooltip {
+        z-index: 9;
+        display: none;
+        position: absolute;
+        height: $chart-block-tooltip-height;
+        line-height: $chart-block-tooltip-height;
+        padding: 0 .5em;
+        text-align: center;
+        font-size: 1em;
+        color: $grey-5;
+        background-color: $white;
+        box-shadow: $material-4;
+        white-space: nowrap;
+        pointer-events: none;
+      }
     }
 
     &__cell {
@@ -216,6 +217,7 @@
         opacity: 0;
         height: 0;
         transition: $chart-cell-transition;
+        pointer-events: none;
       }
 
       &.visible {
