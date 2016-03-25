@@ -21,8 +21,10 @@
             <p class="controls__panel--text">
               Change chart scale:
             </p>
-            <input type="text" value="10">
-            <input type="button" value="Change Scale">
+            <div class="controls__panel--group">
+              <input type="text" value="10" class="controls__panel--input controls__panel--input-text">
+              <input type="button" value="Change Scale" class="controls__panel--input controls__panel--input-button">
+            </div>
             <div class="controls__panel--group">
               <input type="range" min="1" max="100" step="1" value="10" class="controls__panel--input controls__panel--input-slider">
               <p class="controls__panel--slider-text">
@@ -30,10 +32,14 @@
               </p>
             </div>
           </div>
-          <div class="controls__panel controls__panel-timeline">
+          <div class="controls__panel controls__panel-timeline-interval">
             <p class="controls__panel--text">
               Change chart timeline interval:
             </p>
+            <div class="controls__panel--group">
+              <input type="text" value="7" class="controls__panel--input controls__panel--input-text">
+              <input type="button" value="Change Interval" class="controls__panel--input controls__panel--input-button">
+            </div>
           </div>
         </div>
       </div>

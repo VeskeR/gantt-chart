@@ -13,6 +13,9 @@ var Controller = function () {
   this._scaleTextInput = null;
   this._scaleButton = null;
 
+  this._intervalTextInput = null;
+  this._intervalButton = null;
+
   this._sliderTimeout = null;
 
   this._init();
@@ -38,6 +41,9 @@ Controller.prototype = {
     this._scaleSliderText = $.first(".controls__panel-scale .controls__panel--slider-text");
     this._scaleTextInput = $.first(".controls__panel-scale input[type='text']");
     this._scaleButton = $.first(".controls__panel-scale input[type='button']");
+
+    this._intervalTextInput = $.first(".controls__panel-timeline-interval input[type='text']")
+    this._intervalButton = $.first(".controls__panel-timeline-interval input[type='button']");
   },
   _bindEvents: function () {
     var self = this;
@@ -54,6 +60,10 @@ Controller.prototype = {
     this._scaleButton.addEventListener('click', function () {
       self._changeChartScale(self._scaleTextInput.value);
     });
+
+    this._intervalButton.addEventListener('click', function () {
+      self._changeInterval(self._intervalTextInput.value);
+    });
   },
   _changeChartScale: function (scale) {
     scale = parseInt(scale) || 1;
@@ -63,6 +73,13 @@ Controller.prototype = {
     this._scaleSlider.value = scale;
 
     this._chart.changeScale(scale);
+  },
+  _changeInterval: function (intervalCount) {
+    intervalCount = parseInt(intervalCount) || 1;
+
+    this._intervalTextInput.innerHTML = intervalCount;
+
+    this._chart.changeTimelineInterval(intervalCount);
   }
 };
 
