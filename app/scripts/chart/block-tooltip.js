@@ -34,22 +34,14 @@ BlockTooltip.prototype = {
       self._setPosition(e.clientX);
       self._show();
     });
-    this._blockElement.addEventListener('mousemove', function (e) {
-      self._setPosition(e.clientX);
-    });
     this._blockElement.addEventListener('mouseout', function () {
       self._hide();
     });
   },
   _setPosition: function (clientX) {
     var windowWidth = window.innerWidth;
-    if (clientX > windowWidth / 2) {
-      this._tooltipElement.style.right = '60%';
-      this._tooltipElement.style.left = null;
-    } else {
-      this._tooltipElement.style.right = null;
-      this._tooltipElement.style.left = '60%';
-    }
+    this._tooltipElement.style.right = null;
+    this._tooltipElement.style.left = '10%';
   },
   _show: function () {
     this._tooltipElement.style.display = 'block';
