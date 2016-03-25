@@ -1,7 +1,7 @@
 'use strict';
 
 var $ = require('../helper');
-var BlockTooltip = require('./block-tooltip');
+var BlocksTooltip = require('./blocks-tooltip');
 var blockColors = require('../constants').blockColors;
 
 var Chart = function (settings) {
@@ -30,7 +30,7 @@ var Chart = function (settings) {
   this._flattenedBlocks = [];
 
   this._breakpoints = [];
-  this._blockTooltips = [];
+  this._blocksTooltip = null;
 
   this._colorCache = {};
   this._currBlockColorIndex = Math.random() * blockColors.length | 0;
@@ -438,20 +438,8 @@ Chart.prototype = {
     });
   },
   _createTooltips: function () {
-    this._generateTooltipsArray();
-    this._initializeTooltips();
-  },
-  _generateTooltipsArray: function () {
-    var self = this;
-    this._flattenedBlocks.forEach(function (block) {
-      var blockInfo = self._flattenedBlockInfos[block.dataset.blockId];
-      self._blockTooltips.push(new BlockTooltip(block, blockInfo));
-    });
-  },
-  _initializeTooltips: function () {
-    this._blockTooltips.forEach(function (tooltip) {
-      tooltip.init();
-    });
+    this._blocksTooltip = new BlocksTooltip(this._chartBody, this._flattenedBlocks, this._flattenedBlockInfos);
+    this._blocksTooltip.init();
   },
   _bindEvents: function () {
     var self = this;
