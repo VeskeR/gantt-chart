@@ -103,7 +103,7 @@
         align-items: center;
         justify-content: flex-start;
         flex-wrap: nowrap;
-        padding: 0 2em 0 3em;
+        padding: 0 3em;
 
         &-group {
           &.collapsed {
@@ -175,7 +175,7 @@
       &--timeline {
         height: $chart-timeline-height;
         position: relative;
-        padding: 0 2em 0 3em;
+        padding: 0 3em;
         transition: $chart-timeline-transition;
 
         &--wrapper {
