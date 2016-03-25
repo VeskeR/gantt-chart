@@ -6,7 +6,7 @@ $chart-cell-height: 4em;
 $chart-blocks-height: 2.5em;
 $chart-block-tooltip-height: $chart-blocks-height;
 $chart-timeline-height: 4em;
-$chart-breakpoint-height: 2em;
+$chart-breakpoint-height: 3em;
 
 // Colors
 $white: #fff;
@@ -23,6 +23,7 @@ $black: #000;
 $chart-cell-transition: .3s ease-out;
 $chart-expander-transition: $chart-cell-transition;
 $chart-block-transition: $chart-cell-transition;
+$chart-timeline-transition: $chart-cell-transition;
 
 // Material box shadows
 $material-1: 0px 1px 4px rgba($black, 0.3);

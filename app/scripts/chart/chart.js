@@ -4,7 +4,7 @@ var $ = require('../helper');
 var BlockTooltip = require('./block-tooltip');
 var blockColors = require('../constants').blockColors;
 
-var ChartGenerator = function (settings) {
+var Chart = function (settings) {
   this._chartTarget = settings.target;
   this._chartJson = settings.json;
   this._timelineInterval = settings.timelineInterval || 7;
@@ -38,7 +38,7 @@ var ChartGenerator = function (settings) {
   this._controller();
 }
 
-ChartGenerator.prototype = {
+Chart.prototype = {
   changeScale: function (newScale) {
     if (newScale < this._minChartScale) {
       newScale = this._minChartScale;
@@ -69,7 +69,7 @@ ChartGenerator.prototype = {
     this._chartBody.appendChild($newTimeline);
 
     this._setChartBodyElementsWidth();
-    
+
     this._setBreakpointPositions();
     this._setBreakpointPipeSizes();
   },
@@ -593,4 +593,4 @@ ChartGenerator.prototype = {
   }
 };
 
-module.exports = ChartGenerator;
+module.exports = Chart;

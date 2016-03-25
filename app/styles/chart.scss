@@ -88,14 +88,16 @@
           font-size: 1.2em;
           text-align: right;
           white-space: nowrap;
-          overflow: scroll;
+          overflow-x: scroll;
+          overflow-y: hidden;
         }
       }
     }
 
     &__body {
       max-width: 100%;
-      overflow: scroll;
+      overflow-x: scroll;
+      overflow-y: hidden;
 
       &--blocks-container {
         align-items: center;
@@ -174,6 +176,7 @@
         height: $chart-timeline-height;
         position: relative;
         padding: 0 2em 0 3em;
+        transition: $chart-timeline-transition;
 
         &--wrapper {
           position: relative;
