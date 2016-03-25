@@ -1,4 +1,4 @@
-.wrapper {
+.chart-wrapper {
   width: 100%;
   height: 100%;
   font-size: 100%;
@@ -63,6 +63,7 @@
               border: .4em solid $grey-5;
               transform-origin: center;
               transform: translateX(-50%) translateY(-50%) rotate(-45deg);
+              transition: $chart-expander-transition;
             }
 
             &--collapsed {
@@ -87,30 +88,36 @@
           font-size: 1.2em;
           text-align: right;
           white-space: nowrap;
-          overflow: scroll;
+          overflow-x: auto;
+          overflow-y: hidden;
         }
       }
     }
 
     &__body {
       max-width: 100%;
-      overflow: scroll;
+      overflow-x: auto;
+      overflow-y: hidden;
 
       &--blocks-container {
         align-items: center;
         justify-content: flex-start;
         flex-wrap: nowrap;
-        padding: 0 2em 0 3em;
+        padding: 0 3em;
 
         &-group {
           &.collapsed {
             .chart__block {
               &--own {
-                display: none;
+                z-index: 1;
+                opacity: 0;
+                // display: none;
               }
 
               &--child {
-                display: block;
+                z-index: 2;
+                opacity: 1;
+                // display: block;
               }
             }
           }
@@ -118,11 +125,15 @@
           &.expanded {
             .chart__block {
               &--own {
-                display: block;
+                z-index: 2;
+                opacity: 1;
+                // display: block;
               }
 
               &--child {
-                display: none;
+                z-index: 1;
+                opacity: 0;
+                // display: none;
               }
             }
           }
@@ -140,9 +151,10 @@
             height: 100%;
             text-align: center;
             box-shadow: $material-1;
+            transition: opacity $chart-block-transition;
 
             &--tooltip {
-              z-index: 2;
+              z-index: 9;
               display: none;
               position: absolute;
               top: -80%;
@@ -163,7 +175,8 @@
       &--timeline {
         height: $chart-timeline-height;
         position: relative;
-        padding: 0 2em 0 3em;
+        padding: 0 3em;
+        transition: $chart-timeline-transition;
 
         &--wrapper {
           position: relative;
@@ -192,19 +205,24 @@
     }
 
     &__cell {
-      height: $chart-cell-height;
+      display: flex;
       line-height: $chart-cell-height;
       position: relative;
       color: $grey-5;
       vertical-align: middle;
-      border-bottom: 1px solid $grey-2;
-
-      &.visible {
-        display: flex;
-      }
+      border-bottom: none;
 
       &.hidden {
-        display: none;
+        opacity: 0;
+        height: 0;
+        transition: $chart-cell-transition;
+      }
+
+      &.visible {
+        border-bottom: 1px solid $grey-2;
+        opacity: 1;
+        transition: $chart-cell-transition;
+        height: $chart-cell-height;
       }
 
       &.second-cell {

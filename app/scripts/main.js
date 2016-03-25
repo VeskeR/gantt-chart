@@ -1,11 +1,4 @@
 'use strict';
 
-var $ = require('./helper');
-var ChartGenerator = require('./chart/chart-generator');
-var chartTemplate = require('./constants').chartJsonExample;
-
-var chartTarget = $.first('.wrapper__content--chart-target');
-
-var chartGenerator = new ChartGenerator(chartTarget, chartTemplate, 7);
-// TODO: remove from global
-window.chartGenerator = chartGenerator;
+var Controller = require('./controller.js');
+var controller = new Controller();

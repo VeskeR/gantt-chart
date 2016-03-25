@@ -4,10 +4,11 @@ var $ = require('../helper');
 var BlockTooltip = require('./block-tooltip');
 var blockColors = require('../constants').blockColors;
 
-var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
-  this._chartTarget = chartTarget;
-  this._chartJson = chartJson;
-  this._timelineInterval = timelineInterval || 7;
+var Chart = function (settings) {
+  this._chartTarget = settings.target;
+  this._chartJson = settings.json;
+  this._timelineInterval = settings.timelineInterval || 7;
+  this._chartScale = settings.scale || 1;
 
   this._chartInfo = null;
   this._chart = null;
@@ -15,7 +16,13 @@ var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
   this._chartBody = null;
   this._chartTimeline = null;
 
-  this._pixelsPerInterval = 200;
+  this._minTimelineInterval = 1;
+  this._maxTimelineInterval = 30;
+
+  this._pixelsPerScale = 100;
+
+  this._minChartScale = 1;
+  this._maxChartScale = 1000;
 
   this._flattenedBlockInfos = [];
   this._flattenedCaptions = [];
@@ -31,7 +38,41 @@ var ChartGenerator = function (chartTarget, chartJson, timelineInterval) {
   this._controller();
 }
 
-ChartGenerator.prototype = {
+Chart.prototype = {
+  changeScale: function (newScale) {
+    if (newScale < this._minChartScale) {
+      newScale = this._minChartScale;
+    } else if (newScale > this._maxChartScale) {
+      newScale = this._maxChartScale;
+    }
+
+    this._chartScale = newScale;
+
+    // We need to recalculate elements widths
+    // Since blocks and timeline breakpoints uses percents to position themselves
+    // we do not need to recalculate them too
+    this._setChartBodyElementsWidth();
+  },
+  changeTimelineInterval: function (newInterval) {
+    if (newInterval < this._minTimelineInterval) {
+      newInterval = this._minTimelineInterval;
+    } else if (newInterval > this._maxTimelineInterval) {
+      newInterval = this._maxTimelineInterval;
+    }
+
+    this._timelineInterval = newInterval;
+
+    this._destroyTimeline();
+
+    var $newTimeline = this._createTimeline();
+    this._chartTimeline = $newTimeline;
+    this._chartBody.appendChild($newTimeline);
+
+    this._setChartBodyElementsWidth();
+
+    this._setBreakpointPositions();
+    this._setBreakpointPipeSizes();
+  },
   _controller: function () {
     var self = this;
 
@@ -78,15 +119,26 @@ ChartGenerator.prototype = {
     this._chartInfo = processBlock(this._chartJson);
   },
   _renderChart: function () {
+    // Creation of chart layout
     this._createChart();
-    this._setChartBodyWidth();
+    this._setChartBodyElementsWidth();
+
+    // Appending created chart layout to specified target in DOM
     this._appendChartToTarget();
+
+    // Configuring chart element positions and sizes
     this._setBlockPositions();
     this._setBreakpointPositions();
     this._setBreakpointPipeSizes();
+
+    // Apply styling
     this._markEveryOtherVisibleRow();
     this._colorizeBlocks();
+
+    // Creating tooltips for blocks
     this._createTooltips();
+
+    // Adding event listeners to response user input
     this._bindEvents();
   },
   _createChart: function () {
@@ -127,11 +179,6 @@ ChartGenerator.prototype = {
     };
 
     buildCaptions(this._chartInfo.blocks);
-
-    // this._chartInfo.blocks.forEach(function (row) {
-    //   var $caption = self._createCaption(row);
-    //   $chartHeader.appendChild($caption);
-    // });
 
     return $chartHeader;
   },
@@ -186,11 +233,6 @@ ChartGenerator.prototype = {
     };
 
     buildBlocksContainers(this._chartInfo.blocks);
-
-    // this._chartInfo.blocks.forEach(function (row) {
-    //   var $blocksContainer = self._createBlocksContainer(row);
-    //   $chartBody.appendChild($blocksContainer);
-    // });
 
     var $timeline = this._createTimeline();
     this._chartTimeline = $timeline;
@@ -261,9 +303,12 @@ ChartGenerator.prototype = {
 
     return $timeline;
   },
-  _getChartBodyWidth: function () {
-    var intervalCount = this._getInvervalCount();
-    return this._pixelsPerInterval * intervalCount + 'px';
+  _destroyTimeline: function () {
+    if (this._chartTimeline) {
+      this._chartBody.removeChild(this._chartTimeline);
+    }
+    this._chartTimeline = null;
+    this._breakpoints = [];
   },
   _getBreakpointsCount: function () {
     return Math.round(this._getInvervalCount()) + 1;
@@ -301,10 +346,10 @@ ChartGenerator.prototype = {
     $pipe.classList.add('chart__breakpoint--pipe');
     return $pipe;
   },
-  _setChartBodyWidth: function () {
+  _setChartBodyElementsWidth: function () {
     var self = this;
 
-    var chartBodyWidth = this._getChartBodyWidth();
+    var chartBodyWidth = this._getChartBodyElementsWidth();
 
     this._flattenedBlocksContainers.forEach(function (blocksContainer) {
       blocksContainer.style.width = chartBodyWidth;
@@ -312,9 +357,13 @@ ChartGenerator.prototype = {
 
     this._chartTimeline.style.width = chartBodyWidth;
   },
+  _getChartBodyElementsWidth: function () {
+    var intervalCount = this._getInvervalCount();
+    return this._pixelsPerScale * this._chartScale + 'px';
+  },
   _appendChartToTarget: function () {
     var $wrapper = $.create('div');
-    $wrapper.classList.add('wrapper');
+    $wrapper.classList.add('chart-wrapper');
     $wrapper.appendChild(this._chart);
 
     this._chartTarget.appendChild($wrapper);
@@ -333,25 +382,6 @@ ChartGenerator.prototype = {
       $block.style.width = blockPositionInfo.widthPercents;
       $block.style.left = blockPositionInfo.leftPercents;
     });
-    // for (var i = 0; i < this._chartInfo.blocks.length; i++) {
-    //   var row = this._chartInfo.blocks[i];
-    //   var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container')[i];
-    //   var containerWidth = $.compStyles($blocksContainer).width;
-    //
-    //   for (var j = 0; j < row.blocks.length; j++) {
-    //     var block = row.blocks[j];
-    //     var $block = $blocksContainer.querySelectorAll('.chart__block')[j];
-    //
-    //     var blockPositionInfo = this._getRelativePositionInfo(
-    //       block.startTime,
-    //       block.endTime,
-    //       containerWidth
-    //     );
-    //
-    //     $block.style.width = blockPositionInfo.widthPercents;
-    //     $block.style.left = blockPositionInfo.leftPercents;
-    //   }
-    // }
   },
   _setBreakpointPositions: function () {
     var $breakpoints = this._chartTimeline.querySelectorAll('.chart__breakpoint');
@@ -417,16 +447,6 @@ ChartGenerator.prototype = {
       var blockInfo = self._flattenedBlockInfos[block.dataset.blockId];
       self._blockTooltips.push(new BlockTooltip(block, blockInfo));
     });
-    // for (var i = 0; i < this._chartInfo.blocks.length; i++) {
-    //   var row = this._chartInfo.blocks[i];
-    //   var $blocksContainer = this._chart.querySelectorAll('.chart__body--blocks-container--wrapper')[i];
-    //   for (var j = 0; j < row.blocks.length; j++) {
-    //     var block = row.blocks[j];
-    //     var $block = $blocksContainer.querySelectorAll('.chart__block')[j];
-    //
-    //     this._blockTooltips.push(new BlockTooltip($block, block));
-    //   }
-    // }
   },
   _initializeTooltips: function () {
     this._blockTooltips.forEach(function (tooltip) {
@@ -573,4 +593,4 @@ ChartGenerator.prototype = {
   }
 };
 
-module.exports = ChartGenerator;
+module.exports = Chart;
