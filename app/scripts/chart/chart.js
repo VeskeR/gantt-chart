@@ -5,8 +5,18 @@ var BlocksTooltip = require('./blocks-tooltip');
 var blockColors = require('../constants').blockColors;
 
 var Chart = function (settings) {
-  this._chartTarget = settings.target;
-  this._chartUnprocessedInfo = settings.info;
+  if (settings.target) {
+    this._chartTarget = settings.target;
+  } else {
+    throw new ReferenceError('Valid target element was not specified for chart. Not creating chart.');
+    return;
+  }
+  if (settings.info) {
+    this._chartUnprocessedInfo = settings.info;
+  } else {
+    throw new ReferenceError('Chart information was not specified. Not creating chart.');
+    return;
+  }
   this._timelineInterval = settings.timelineInterval || 7;
   this._chartScale = settings.scale || 1;
 
@@ -68,8 +78,10 @@ Chart.prototype = {
     this._chartTimeline = $newTimeline;
     this._chartBody.appendChild($newTimeline);
 
+    // We need to call this method to set width for recently created timeline
     this._setChartBodyElementsWidth();
 
+    // And then recalculate positions of created brakpoints
     this._setBreakpointPositions();
     this._setBreakpointPipeSizes();
   },
@@ -88,8 +100,12 @@ Chart.prototype = {
     var id = 0;
     var level = -1;
 
-    var chartStartTime = new Date(this._chartUnprocessedInfo.startTime);
-    var chartEndTime = new Date(this._chartUnprocessedInfo.endTime);
+    try {
+      var chartStartTime = $.tryParseDate(this._chartUnprocessedInfo.startTime);
+      var chartEndTime = $.tryParseDate(this._chartUnprocessedInfo.endTime);
+    } catch (e) {
+      throw new TypeError('Not found valid startTime and endTime values for chart');
+    }
 
     var processBlock = function (block) {
       level++;
@@ -99,8 +115,25 @@ Chart.prototype = {
       processedBlock.level = level;
 
       processedBlock.name = block.name || '';
-      processedBlock.startTime = new Date(block.startTime);
-      processedBlock.endTime = new Date(block.endTime);
+
+      try {
+        processedBlock.startTime = $.tryParseDate(block.startTime);
+        processedBlock.endTime = $.tryParseDate(block.endTime);
+      } catch (e) {
+        throw new TypeError("Not found valid startTime and endTime values for chart block '" +
+                            processedBlock.name + "'");
+      }
+
+      if (processedBlock.startTime > processedBlock.endTime ||
+          processedBlock.startTime > chartEndTime ||
+          processedBlock.startTime < chartStartTime ||
+          processedBlock.endTime > chartEndTime ||
+          processedBlock.endTime < chartStartTime) {
+            throw new RangeError("Found invalid dates for block '" + processedBlock.name + "'. " +
+                                'startTime must not be greater than endTime of block ' +
+                                 "and block's dates must be between startTime and endTime of chart.");
+          }
+
       processedBlock.fromBeginning = self._getDaysBetweenDates(chartStartTime, processedBlock.startTime);
       processedBlock.toEnd = self._getDaysBetweenDates(processedBlock.endTime, chartEndTime);
       processedBlock.duration = self._getDaysBetweenDates(processedBlock.startTime, processedBlock.endTime);

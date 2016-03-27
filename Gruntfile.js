@@ -60,14 +60,6 @@ module.exports = function (grunt) {
       options: {
         encoding: 'utf-8'
       },
-      serve: {
-        files: [{
-          expand: true,
-          cwd: 'app',
-          src: '**/*.json',
-          dest: '.tmp'
-        }]
-      },
       dist: {
         files: [{
           expand: true,
@@ -136,12 +128,6 @@ module.exports = function (grunt) {
           'postcss:serve'
         ]
       },
-      json: {
-        files: ['app/**/*.json'],
-        tasks: [
-          'copy:serve'
-        ]
-      },
       serve: {
         options: {
           livereload: '<%= connect.options.livereload %>',
@@ -160,7 +146,6 @@ module.exports = function (grunt) {
     'browserify:serve',
     'sass:serve',
     'postcss:serve',
-    'copy:serve',
     'connect:serve',
     'watch'
   ]);
