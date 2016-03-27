@@ -122,6 +122,13 @@ module.exports = function (grunt) {
         }
       }
     },
+    uglify: {
+      dist: {
+        files: {
+          'dist/scripts/main.min.js': ['dist/scripts/main.js']
+        }
+      }
+    },
     watch: {
       options: {
         interrupt: true
@@ -165,6 +172,7 @@ module.exports = function (grunt) {
     'clean',
     'browserify:dist',
     'sass:dist',
+    'uglify:dist',
     'postcss:dist',
     'copy:dist',
     'processhtml:dist'
