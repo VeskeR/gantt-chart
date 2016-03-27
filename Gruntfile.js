@@ -86,14 +86,15 @@ module.exports = function (grunt) {
       },
       dist: {
         options: {
-          map: false
+          map: false,
+          processors: [
+            require('autoprefixer')({ browsers: ['last 2 versions', 'ie 8', 'ie 9'] }),
+            require('cssnano')()
+          ]
         },
-        files: [{
-          expand: true,
-          cwd: 'dist',
-          src: 'styles/**/*.css',
-          dest: 'dist'
-        }]
+        files: {
+          'dist/styles/main.min.css': ['dist/styles/main.css']
+        }
       }
     },
     processhtml: {
