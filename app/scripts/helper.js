@@ -16,6 +16,14 @@ $.compStyles = function (element) {
   return window.getComputedStyle(element);
 };
 
+$.tryParseDate = function (date) {
+  if (date && !!Date.parse(date)) {
+    return new Date(date);
+  } else {
+    throw new TypeError('Not valid date format was specified.');
+  }
+};
+
 $.formatDate = function (date) {
   return date.toDateString().substr(4);
 };
