@@ -1,0 +1,32 @@
+// Sizes
+$chart-header-width: 14em;
+$chart-group-expander-width: 3em;
+$chart-group-expander-arrow-width: 1.8em;
+$chart-cell-height: 4em;
+$chart-blocks-height: 2.5em;
+$chart-block-tooltip-height: $chart-blocks-height;
+$chart-timeline-height: 4em;
+$chart-breakpoint-height: 3em;
+
+// Colors
+$white: #fff;
+$grey-1: hsl(0, 0%, 95%);
+$grey-2: hsl(0, 0%, 80%);
+$grey-3: hsl(0, 0%, 65%);
+$grey-4: hsl(0, 0%, 50%);
+$grey-5: hsl(0, 0%, 35%);
+$grey-6: hsl(0, 0%, 20%);
+$grey-7: hsl(0, 0%, 5%);
+$black: #000;
+
+// Transitions
+$chart-cell-transition: .3s ease-out;
+$chart-expander-transition: $chart-cell-transition;
+$chart-block-transition: $chart-cell-transition;
+$chart-timeline-transition: $chart-cell-transition;
+
+// Material box shadows
+$material-1: 0px 1px 4px rgba($black, 0.3);
+$material-2: 0px 3px 8px rgba($black, 0.3);
+$material-3: 0px 5px 12px rgba($black, 0.3);
+$material-4: 0px 7px 16px rgba($black, 0.3);

@@ -15,7 +15,6 @@
   "dependencies": {},
   "devDependencies": {
     "autoprefixer": "^6.3.3",
-    "bower": "^1.7.7",
     "grunt": "^0.4.5",
     "grunt-browserify": "^5.0.0",
     "grunt-cli": "^0.1.13",
@@ -25,7 +24,6 @@
     "grunt-contrib-watch": "^1.0.0",
     "grunt-postcss": "^0.8.0",
     "grunt-sass": "^1.1.0",
-    "grunt-wiredep": "^2.0.0",
     "load-grunt-tasks": "^3.4.1"
   }
 }

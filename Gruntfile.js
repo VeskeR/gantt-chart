@@ -64,7 +64,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: 'app',
-          src: '**/*.html',
+          src: '**/*.{html,json}',
           dest: 'dist'
         }]
       }
@@ -115,12 +115,6 @@ module.exports = function (grunt) {
       options: {
         interrupt: true
       },
-      bower: {
-        files: ['bower.json'],
-        tasks: [
-          'wiredep'
-        ]
-      },
       js: {
         files: ['app/**/*.js'],
         tasks: [
@@ -144,15 +138,7 @@ module.exports = function (grunt) {
           'app/**/*.html'
         ]
       }
-    },
-    wiredep: {
-      options: {
-        ignorePath: /^(\.\.\/)*\.\./
-      },
-      task: {
-        src: ['app/**/*.html']
-      }
-    },
+    }
   });
 
   grunt.registerTask('serve', [
