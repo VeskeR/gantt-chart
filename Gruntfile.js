@@ -64,7 +64,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: 'app',
-          src: '**/*.{html,json}',
+          src: '**/*.json',
           dest: 'dist'
         }]
       }
@@ -92,6 +92,16 @@ module.exports = function (grunt) {
           expand: true,
           cwd: 'dist',
           src: 'styles/**/*.css',
+          dest: 'dist'
+        }]
+      }
+    },
+    processhtml: {
+      dist: {
+        files: [{
+          expand: true,
+          cwd: 'app',
+          src: '**/*.html',
           dest: 'dist'
         }]
       }
@@ -155,7 +165,8 @@ module.exports = function (grunt) {
     'browserify:dist',
     'sass:dist',
     'postcss:dist',
-    'copy:dist'
+    'copy:dist',
+    'processhtml:dist'
   ]);
 
   grunt.registerTask('serve:dist', [
