@@ -153,7 +153,8 @@ module.exports = function (grunt) {
         },
         files: [
           '.tmp/**/*.{js,css,html,jpg,png,svg,gif,json}',
-          'app/**/*.html'
+          'app/**/*.html',
+          'app/**/*.json'
         ]
       }
     }

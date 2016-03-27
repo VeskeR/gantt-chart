@@ -50,7 +50,7 @@ Controller.prototype = {
           scale: 10
         });
       } catch (e) {
-        console.warn('Error occured while creating chart: ' + e);
+        console.warn('Error occurred while creating chart: ' + e);
         this._chart = null;
       }
     } else {

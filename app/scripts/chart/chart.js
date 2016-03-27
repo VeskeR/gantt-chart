@@ -107,6 +107,12 @@ Chart.prototype = {
       throw new TypeError('Not found valid startTime and endTime values for chart');
     }
 
+    if (!this._chartUnprocessedInfo.blocks ||
+        !this._chartUnprocessedInfo.blocks.length ||
+        this._chartUnprocessedInfo.blocks.length < 1) {
+          throw new TypeError("Chart must have at least one block in 'blocks' property.");
+        }
+
     var processBlock = function (block) {
       level++;
       var processedBlock = {};
@@ -114,7 +120,7 @@ Chart.prototype = {
       processedBlock.id = id++;
       processedBlock.level = level;
 
-      processedBlock.name = block.name || '';
+      processedBlock.name = block.name || 'Unknown block';
 
       try {
         processedBlock.startTime = $.tryParseDate(block.startTime);
@@ -124,7 +130,7 @@ Chart.prototype = {
                             processedBlock.name + "'");
       }
 
-      if (processedBlock.startTime > processedBlock.endTime ||
+      if (processedBlock.startTime >= processedBlock.endTime ||
           processedBlock.startTime > chartEndTime ||
           processedBlock.startTime < chartStartTime ||
           processedBlock.endTime > chartEndTime ||
