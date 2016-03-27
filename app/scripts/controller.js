@@ -26,15 +26,19 @@ Controller.prototype = {
     var self = this;
     this._chartTarget = $.first('.wrapper__content--chart-target');
 
-    this._loadJson('scripts/chart.json', function (response) {
-      try {
-        self._chartInfo = JSON.parse(response);
-      } catch (e) {
-        console.warn('Unable to parse chart.json. Error: ' + e);
-      } finally {
-        self._createChart();
-      }
-    });
+    try {
+      this._loadJson('scripts/chart.json', function (response) {
+        try {
+          self._chartInfo = JSON.parse(response);
+        } catch (e) {
+          console.warn('Unable to parse chart.json. Error: ' + e);
+        } finally {
+          self._createChart();
+        }
+      });
+    } catch (e) {
+      console.warn('Failed loading chart.json. Error: ' + e);
+    }
   },
   _createChart: function () {
     if (this._chartInfo !== null) {
