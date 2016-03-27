@@ -1,17 +1,7 @@
 {
-  "name": "browserify-webapp-template",
-  "version": "0.0.0",
-  "description": "Template for generating basic web application layout with configured grunt and browserify",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/VeskeR/browserify-webapp-template.git"
-  },
-  "author": "Andrey Bulat",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/VeskeR/browserify-webapp-template/issues"
-  },
-  "homepage": "https://github.com/VeskeR/browserify-webapp-template#readme",
+  "name": "gantt-chart",
+  "version": "1.0.0",
+  "description": "Application for building and displaying gantt charts from specified json information",
   "dependencies": {},
   "devDependencies": {
     "autoprefixer": "^6.3.3",
