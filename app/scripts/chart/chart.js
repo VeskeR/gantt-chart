@@ -6,7 +6,7 @@ var blockColors = require('../constants').blockColors;
 
 var Chart = function (settings) {
   this._chartTarget = settings.target;
-  this._chartJson = settings.json;
+  this._chartUnprocessedInfo = settings.info;
   this._timelineInterval = settings.timelineInterval || 7;
   this._chartScale = settings.scale || 1;
 
@@ -88,8 +88,8 @@ Chart.prototype = {
     var id = 0;
     var level = -1;
 
-    var chartStartTime = new Date(this._chartJson.startTime);
-    var chartEndTime = new Date(this._chartJson.endTime);
+    var chartStartTime = new Date(this._chartUnprocessedInfo.startTime);
+    var chartEndTime = new Date(this._chartUnprocessedInfo.endTime);
 
     var processBlock = function (block) {
       level++;
@@ -116,7 +116,7 @@ Chart.prototype = {
       return processedBlock;
     };
 
-    this._chartInfo = processBlock(this._chartJson);
+    this._chartInfo = processBlock(this._chartUnprocessedInfo);
   },
   _renderChart: function () {
     // Creation of chart layout

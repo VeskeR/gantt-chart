@@ -2,10 +2,10 @@
 
 var $ = require('./helper');
 var ChartGenerator = require('./chart/chart');
-var chartTemplate = require('./constants').chartJsonExample;
 
 var Controller = function () {
   this._chartTarget = null;
+  this._chartInfo = null;
   this._chart = null;
 
   this._scaleSlider = null;
@@ -23,18 +23,49 @@ var Controller = function () {
 
 Controller.prototype = {
   _init: function () {
-    this._chartTarget = $.first('.wrapper__content--chart-target')
-    this._chart = new ChartGenerator({
-      target: this._chartTarget,
-      json: chartTemplate,
-      timelineInterval: 7,
-      scale: 10
+    var self = this;
+    this._chartTarget = $.first('.wrapper__content--chart-target');
+
+    this._loadJson('scripts/chart.json', function (response) {
+      try {
+        self._chartInfo = JSON.parse(response);
+      } catch (e) {
+        console.warn('Unable to parse chart.json. Error: ' + e);
+      } finally {
+        self._createChart();
+      }
     });
-    // TODO: remove from global
-    window.chart = this._chart;
+  },
+  _createChart: function () {
+    if (this._chartInfo !== null) {
+      try {
+        this._chart = new ChartGenerator({
+          target: this._chartTarget,
+          info: this._chartInfo,
+          timelineInterval: 7,
+          scale: 10
+        });
+      } catch (e) {
+        console.warn('Error occured while creating chart: ' + e);
+        this._chart = null;
+      }
+    } else {
+      console.warn('No valid chart information found. Not creating chart.');
+    }
 
     this._getElements();
     this._bindEvents();
+  },
+  _loadJson: function (file, callback) {
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("application/json");
+    xobj.open('GET', file, true);
+    xobj.onreadystatechange = function() {
+      if (xobj.readyState == 4 && xobj.status == "200") {
+        callback(xobj.responseText);
+      }
+    }
+    xobj.send(null);
   },
   _getElements: function () {
     this._scaleSlider = $.first(".controls__panel-scale input[type='range']");
@@ -72,14 +103,18 @@ Controller.prototype = {
     this._scaleTextInput.value = scale;
     this._scaleSlider.value = scale;
 
-    this._chart.changeScale(scale);
+    if (this._chart) {
+      this._chart.changeScale(scale);
+    }
   },
   _changeInterval: function (intervalCount) {
     intervalCount = parseInt(intervalCount) || 1;
 
     this._intervalTextInput.value = intervalCount;
 
-    this._chart.changeTimelineInterval(intervalCount);
+    if (this._chart) {
+      this._chart.changeTimelineInterval(intervalCount);
+    }
   }
 };
 
