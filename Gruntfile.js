@@ -64,7 +64,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: 'app',
-          src: '**/*.{html,json}',
+          src: '**/*.json',
           dest: 'dist'
         }]
       }
@@ -86,12 +86,23 @@ module.exports = function (grunt) {
       },
       dist: {
         options: {
-          map: false
+          map: false,
+          processors: [
+            require('autoprefixer')({ browsers: ['last 2 versions', 'ie 8', 'ie 9'] }),
+            require('cssnano')()
+          ]
         },
+        files: {
+          'dist/styles/main.min.css': ['dist/styles/main.css']
+        }
+      }
+    },
+    processhtml: {
+      dist: {
         files: [{
           expand: true,
-          cwd: 'dist',
-          src: 'styles/**/*.css',
+          cwd: 'app',
+          src: '**/*.html',
           dest: 'dist'
         }]
       }
@@ -108,6 +119,13 @@ module.exports = function (grunt) {
       dist: {
         files: {
           'dist/styles/main.css': ['app/styles/main.scss']
+        }
+      }
+    },
+    uglify: {
+      dist: {
+        files: {
+          'dist/scripts/main.min.js': ['dist/scripts/main.js']
         }
       }
     },
@@ -135,7 +153,8 @@ module.exports = function (grunt) {
         },
         files: [
           '.tmp/**/*.{js,css,html,jpg,png,svg,gif,json}',
-          'app/**/*.html'
+          'app/**/*.html',
+          'app/**/*.json'
         ]
       }
     }
@@ -154,8 +173,10 @@ module.exports = function (grunt) {
     'clean',
     'browserify:dist',
     'sass:dist',
+    'uglify:dist',
     'postcss:dist',
-    'copy:dist'
+    'copy:dist',
+    'processhtml:dist'
   ]);
 
   grunt.registerTask('serve:dist', [
