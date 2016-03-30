@@ -1,6 +1,6 @@
 {
   "name": "gantt-chart",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Application for building and displaying gantt charts from specified json information",
   "repository": {
     "type": "git",
