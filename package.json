@@ -1,7 +1,17 @@
 {
   "name": "gantt-chart",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Application for building and displaying gantt charts from specified json information",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VeskeR/gantt-chart.git"
+  },
+  "author": "Andrey Bulat",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/VeskeR/gantt-chart/issues"
+  },
+  "homepage": "https://github.com/VeskeR/gantt-chart#readme",
   "dependencies": {},
   "devDependencies": {
     "autoprefixer": "^6.3.3",
