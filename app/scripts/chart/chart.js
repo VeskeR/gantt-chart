@@ -113,6 +113,19 @@ Chart.prototype = {
           throw new TypeError("Chart must have at least one block in 'blocks' property.");
         }
 
+    var escapeHtml = (function () {
+      var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return function (text) {
+        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+      }
+    })();
+
     var processBlock = function (block) {
       level++;
       var processedBlock = {};
@@ -121,6 +134,7 @@ Chart.prototype = {
       processedBlock.level = level;
 
       processedBlock.name = block.name || 'Unknown block';
+      processedBlock.name = escapeHtml(processedBlock.name);
 
       try {
         processedBlock.startTime = $.tryParseDate(block.startTime);
